@@ -1,0 +1,108 @@
+
+    [
+        {
+            "nome": "Churrasco",
+            "imagem": "/assets/Churrasco.jpg",
+            "id": 1,
+            "preco": 23,
+            "descricao": "Churrasco acompanhado de arroz, farofa, salada, purê e macaxeira frita"
+        },
+        {
+            "nome": "Caldo",
+            "imagem": "/assets/Caldo.webp",
+            "id": 2,
+            "preco": 20,
+            "descricao": "Caldo de ovos delicioso"
+        },
+        {
+            "nome": "Sopa",
+            "imagem": "/assets/Sopa.jpg",
+            "id": 3,
+            "preco": 20,
+            "descricao": "Porção de sopa de legumes"
+        },
+        {
+            "nome": "Assado de Panela",
+            "imagem": "/assets/Assado de Panela.png",
+            "id": 4,
+            "preco": 23,
+            "descricao": "Assado de panela suculento e macio"
+        },
+        {
+            "nome": "Galinha Caipira",
+            "imagem": "/assets/Cozido de Galinha.png",
+            "id": 5,
+            "preco": 25,
+            "descricao": "Galinha Caipira cazeira com tempero ao ponto"
+        },
+        {
+            "nome": "Macarronada",
+            "imagem": "/assets/Macarronada.jpg",
+            "id": 6,
+            "preco": 20,
+            "descricao": "Macarronada feita na hora com aquele macarrão de primeira"
+        },
+        {
+            "nome": "Pastel",
+            "imagem": "/assets/Pastel.jpg",
+            "id": 7,
+            "preco": 10,
+            "descricao": "Porção com varios pasteis com varios sabores"
+        },
+        {
+            "nome": "Batata Frita",
+            "imagem": "/assets/Batata.jpg",
+            "id": 8,
+            "preco": 10,
+            "descricao": "Batata Frita crocante e preparadas do seu jeito"
+        },
+        {
+            "nome": "Lasanha",
+            "imagem": "/assets/Lasanha.png",
+            "id": 9,
+            "preco": 20,
+            "descricao": "Lasanha de frango ou carne bem recheada de gostosuras"
+        },
+        {
+            "nome": "Coca-Cola",
+            "imagem": "/assets/Coca Zero.png",
+            "id": 10,
+            "preco": 6,
+            "descricao": "Coca-Cola geladinha"
+        },
+        {
+            "nome": "Coca-Cola Zero",
+            "imagem": "/assets/Coca.png",
+            "id": 11,
+            "preco": 5,
+            "descricao": "Coca-Cola Zero geladinha"
+        },
+        {
+            "nome": "Guarana",
+            "imagem": "/assets/Guarana.png",
+            "id": 12,
+            "preco": 6,
+            "descricao": "Guarana geladinha"
+        },
+        {
+            "nome": "Suco de Cupuaçu",
+            "imagem": "/assets/Suco Cupuaçu .png",
+            "id": 13,
+            "preco": 12,
+            "descricao": "Suco bem gelado feito na hora"
+        },
+        {
+            "nome": "Suco de Goiaba",
+            "imagem": "/assets/Suco Goiaba.png",
+            "id": 14,
+            "preco": 10,
+            "descricao": "Suco bem gelado feito na hora"
+        },
+        {
+            "nome": "Suco de Abacaxi",
+            "imagem": "/assets/Suco Abacaxi.png",
+            "id": 15,
+            "preco": 10,
+            "descricao": "Suco bem gelado feito na hora"
+        }
+    ]

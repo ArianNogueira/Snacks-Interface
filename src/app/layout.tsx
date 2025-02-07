@@ -1,17 +1,21 @@
-import "./globals.css"; 
-import { Main } from "../components/main";
+"use client";
 
+import "./globals.css"; 
+import { Provider } from 'react-redux';
+import  { store }  from "../store/reduceres/store";
+ 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-br">
-      <body>
-        {<Main/>}
-        {children}
-      </body>
-    </html>
+    <Provider store={store}>
+      <html lang="pt-br">
+        <body>
+          {children}
+        </body>
+      </html>
+    </Provider>
   );
 }

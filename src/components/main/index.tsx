@@ -1,3 +1,5 @@
+'use client';
+
 import { Aside } from "../aside";
 import { Header } from "../header";
 import { Nav } from "../nav/indes";
