@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store/reduceres/store';
 import { useEffect } from 'react';
 import { buscarDishes } from '@/store/reduceres/dishesSlice';
+import { addCart } from '@/store/reduceres/cartSlice';
 
 export function Section() {
 
@@ -14,6 +15,7 @@ export function Section() {
     useEffect(() => {
         dispatch(buscarDishes());
     }, [dispatch]);
+    console.log(items)
     return (
         <div>
             <ul className='grid items-center justify-between grid-cols-1 gap-10 px-5 md:grid-cols-2 lg:grid-cols-3'>
@@ -34,7 +36,10 @@ export function Section() {
                                 <p>R$ {dishe.preco.toFixed(2)}</p>
                             </div>
                             <div className="flex flex-col items-center w-full">
-                                <button className="bg-[#926e56] hover:bg-[#d1c4ac] duration-300 px-5 py-1 rounde">
+                                <button
+                                    className="bg-[#926e56] hover:bg-[#d1c4ac] duration-300 px-5 py-1 rounde"
+                                    onClick={() => dispatch(addCart({id: dishe.id, nome: dishe.nome, preco: dishe.preco, quantidade: 1}))}
+                                >
                                     Adicionar Item
                                 </button>
                             </div>
