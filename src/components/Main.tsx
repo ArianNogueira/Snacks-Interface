@@ -1,9 +1,9 @@
 'use client';
 
-import { Aside } from "../aside";
-import { Header } from "../header";
-import { Nav } from "../nav/indes";
-import { Section } from "../section";
+import { Aside } from "./Cart";
+import { Header } from "./Header";
+import { Nav } from "./SideNavigation";
+import { Section } from "./DishesSection";
 
 export function Main() {
     return (

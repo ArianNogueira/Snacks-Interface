@@ -38,7 +38,7 @@ export function Section() {
                             <div className="flex flex-col items-center w-full">
                                 <button
                                     className="bg-[#926e56] hover:bg-[#d1c4ac] duration-300 px-5 py-1 rounde"
-                                    onClick={() => dispatch(addCart({id: dishe.id, nome: dishe.nome, preco: dishe.preco, quantidade: 1}))}
+                                    onClick={() => dispatch(addCart({id: dishe.id, nome: dishe.nome, quantidade: 1, preco: dishe.preco, precoUnitario: dishe.preco}))}
                                 >
                                     Adicionar Item
                                 </button>
