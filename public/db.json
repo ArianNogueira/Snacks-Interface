@@ -5,6 +5,7 @@
             "imagem": "/assets/Churrasco.jpg",
             "id": 1,
             "preco": 23,
+            "categoria": "Almoço/Jantar",
             "descricao": "Churrasco acompanhado de arroz, farofa, salada, purê e macaxeira frita"
         },
         {
@@ -12,6 +13,7 @@
             "imagem": "/assets/Caldo.webp",
             "id": 2,
             "preco": 20,
+            "categoria": "Almoço/Jantar",
             "descricao": "Caldo de ovos delicioso"
         },
         {
@@ -19,6 +21,7 @@
             "imagem": "/assets/Sopa.jpg",
             "id": 3,
             "preco": 20,
+            "categoria": "Almoço/Jantar",
             "descricao": "Porção de sopa de legumes"
         },
         {
@@ -26,6 +29,7 @@
             "imagem": "/assets/Assado de Panela.png",
             "id": 4,
             "preco": 23,
+            "categoria": "Almoço/Jantar",
             "descricao": "Assado de panela suculento e macio"
         },
         {
@@ -33,6 +37,7 @@
             "imagem": "/assets/Cozido de Galinha.png",
             "id": 5,
             "preco": 25,
+            "categoria": "Almoço/Jantar",
             "descricao": "Galinha Caipira cazeira com tempero ao ponto"
         },
         {
@@ -40,6 +45,7 @@
             "imagem": "/assets/Macarronada.jpg",
             "id": 6,
             "preco": 20,
+            "categoria": "Lanches",
             "descricao": "Macarronada feita na hora com aquele macarrão de primeira"
         },
         {
@@ -47,6 +53,7 @@
             "imagem": "/assets/Pastel.jpg",
             "id": 7,
             "preco": 10,
+            "categoria": "Lanches",
             "descricao": "Porção com varios pasteis com varios sabores"
         },
         {
@@ -54,6 +61,7 @@
             "imagem": "/assets/Batata.jpg",
             "id": 8,
             "preco": 10,
+            "categoria": "Lanches",
             "descricao": "Batata Frita crocante e preparadas do seu jeito"
         },
         {
@@ -61,6 +69,7 @@
             "imagem": "/assets/Lasanha.png",
             "id": 9,
             "preco": 20,
+            "categoria": "Lanches",
             "descricao": "Lasanha de frango ou carne bem recheada de gostosuras"
         },
         {
@@ -68,6 +77,7 @@
             "imagem": "/assets/Coca Zero.png",
             "id": 10,
             "preco": 6,
+            "categoria": "Bebidas",
             "descricao": "Coca-Cola geladinha"
         },
         {
@@ -75,6 +85,7 @@
             "imagem": "/assets/Coca.png",
             "id": 11,
             "preco": 5,
+            "categoria": "Bebidas",
             "descricao": "Coca-Cola Zero geladinha"
         },
         {
@@ -82,6 +93,7 @@
             "imagem": "/assets/Guarana.png",
             "id": 12,
             "preco": 6,
+            "categoria": "Bebidas",
             "descricao": "Guarana geladinha"
         },
         {
@@ -89,6 +101,7 @@
             "imagem": "/assets/Suco Cupuaçu .png",
             "id": 13,
             "preco": 12,
+            "categoria": "Bebidas",
             "descricao": "Suco bem gelado feito na hora"
         },
         {
@@ -96,6 +109,7 @@
             "imagem": "/assets/Suco Goiaba.png",
             "id": 14,
             "preco": 10,
+            "categoria": "Bebidas",
             "descricao": "Suco bem gelado feito na hora"
         },
         {
@@ -103,6 +117,7 @@
             "imagem": "/assets/Suco Abacaxi.png",
             "id": 15,
             "preco": 10,
+            "categoria": "Bebidas",
             "descricao": "Suco bem gelado feito na hora"
         }
     ]

@@ -6,7 +6,7 @@ interface Dish {
     quantidade: number;
 }
 
-export function BrintableTicket(items: Dish[], metodoPagamento: String, total: Number) {
+export function BrintableTicket(items: Dish[], metodoPagamento: String, total: Number, nome: string) {
     const gerador = Math.floor(Math.random() * 100);
 
     const formatarData = () => {
@@ -31,7 +31,7 @@ export function BrintableTicket(items: Dish[], metodoPagamento: String, total: N
             <div style={{ padding: "0 8px" }}>
                 <p><strong>PEDIDO: N° {gerador}</strong></p>
                 <p>{dataFormatada}</p>
-                <p>Cliente: Fulano de tal</p>
+                <p>Cliente: {nome}</p>
             </div>
             <span>=========================================================</span>
             <div style={{ display: "flex", justifyContent: "space-between", padding: "0 8px" }}>

@@ -12,6 +12,7 @@ export function Form({ metodoPagamento, setMetodoPagamento }: FormProps) {
                 <Banknote />
                 <p>Dinheiro</p>
                 <input
+                required
                     type="radio"
                     name="payment"
                     value="Dinheiro"
@@ -23,6 +24,7 @@ export function Form({ metodoPagamento, setMetodoPagamento }: FormProps) {
                 <QrCode />
                 <p>Pix </p>
                 <input
+                required
                     type="radio"
                     name="payment"
                     value="Pix"
@@ -34,6 +36,7 @@ export function Form({ metodoPagamento, setMetodoPagamento }: FormProps) {
                 <CreditCard />
                 <p>Débito </p>
                 <input
+                required
                     type="radio"
                     name="payment"
                     value="Débito"
@@ -45,6 +48,7 @@ export function Form({ metodoPagamento, setMetodoPagamento }: FormProps) {
                 <CreditCard />
                 <p>Crédito </p>
                 <input
+                required
                     type="radio"
                     name="payment"
                     value="Crédito"

@@ -6,6 +6,7 @@ interface Dish {
     nome: string;
     preco: number;
     quantidade: number,
+    categoria: string,
     imagem: string
 }
 

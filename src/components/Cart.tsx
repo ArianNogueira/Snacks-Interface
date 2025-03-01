@@ -1,4 +1,4 @@
-import { mudarQuantidade, removerDish } from "@/store/reduceres/cartSlice";
+import { mudarQuantidade, removerDish, resetarCart } from "@/store/reduceres/cartSlice";
 import { AppDispatch, RootState } from "@/store/reduceres/store"
 import { useDispatch, useSelector } from "react-redux"
 import { Printer } from 'lucide-react';
@@ -12,16 +12,27 @@ export function Aside() {
     const dispatch = useDispatch<AppDispatch>();
     const { items = [] } = useSelector((state: RootState) => state.cart);
     const [metodoPagamento, setMetodoPagamento] = useState<string>('');
+    const [nomeCliente, setNomeCliente] = useState<string>('');
 
     let total = items.reduce((acc, item) => acc + item.preco, 0);
     const printRef = useRef<HTMLDivElement>(null);
 
     const handlePrint = () => {
+        if(!nomeCliente) {
+            alert("Informe o nome do cliente");
+            return;
+        }
+
+        if (!metodoPagamento) {
+            alert("Selecione um método de pagamento antes de continuar!");
+            return;
+        }
+
         if (printRef.current) {
             const janela = window.open();
             if (!janela) return;
 
-            const ticketHtml = ReactDOMServer.renderToStaticMarkup(BrintableTicket(items, metodoPagamento, total));
+            const ticketHtml = ReactDOMServer.renderToStaticMarkup(BrintableTicket(items, metodoPagamento, total, nomeCliente));
 
             janela?.document.write(`
                 <html>
@@ -35,6 +46,8 @@ export function Aside() {
             `);
             janela?.document.close();
             janela?.print();
+            dispatch(resetarCart())
+            setMetodoPagamento("")
         }
     };
 
@@ -49,6 +62,14 @@ export function Aside() {
                     </button>
 
                     <div ref={printRef}>
+
+                        <input className="w-full p-2 my-3 rounded-md placeholder:text-zinc-500"
+                        required 
+                        type="text" 
+                        placeholder="Informe o nome do cliente" 
+                        onChange={(e) => setNomeCliente(e.target.value)}
+                        />
+
                         {items.map((item: { id: number; nome: string; preco: number, quantidade: number }) => (
                             <li key={item.id} className="w-full list-none">
                                 <div className="flex flex-col gap-y-2">

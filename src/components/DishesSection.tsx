@@ -4,8 +4,9 @@ import Image from 'next/image';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store/reduceres/store';
 import { useEffect } from 'react';
-import { buscarDishes } from '@/store/reduceres/dishesSlice';
+import { adiconarDishes, buscarDishes } from '@/store/reduceres/dishesSlice';
 import { addCart } from '@/store/reduceres/cartSlice';
+import { ModalDish } from './ModalDish';
 
 export function Section() {
 
@@ -18,10 +19,18 @@ export function Section() {
     console.log(items)
     return (
         <div>
+            <div className='text-end'>
+                <button 
+                    className='bg-[#926e56] p-4 text-lg text-white rounded-full mt-5 hover:text-amber-950 duration-300 ease-in text'
+                    onClick={ModalDish}
+                >
+                    Adicionar
+                </button>
+            </div>
             <ul className='grid items-center justify-between grid-cols-1 gap-10 px-5 md:grid-cols-2 lg:grid-cols-3'>
                 {items && items.length > 0 ? (
-                    items.map((dishe: { id: number; nome: string; descricao: string; imagem: string; preco: number }) => (
-                        <li key={dishe.id} className='w-full p-3 mt-8 bg-white rounded-md'>
+                    items.map((dishe: { id: number; nome: string; descricao: string; imagem: string; preco: number, categoria: string }) => (
+                        <li key={dishe.id} id={dishe.categoria} className='w-full p-3 mt-8 bg-white rounded-md'>
                             <div className="flex flex-col items-center">
                                 <Image
                                     src={dishe.imagem}
