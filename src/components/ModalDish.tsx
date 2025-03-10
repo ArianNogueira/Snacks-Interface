@@ -1,6 +1,5 @@
 "use client"
 
-// import { adiconarDishes } from "@/store/reduceres/dishesSlice"
 import { useState } from "react"
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '@/store/reduceres/store';

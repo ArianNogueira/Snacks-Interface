@@ -36,7 +36,6 @@ export function Section() {
     const handleCloseModal = () => {
         setIsModalOpen(false);
     }
-
     return (
         <div>
             <div className='text-end'>
