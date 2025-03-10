@@ -14,10 +14,12 @@ interface DishesState {
     items: Dish[];
 }
 
-interface AddDishAction {
-    type: string;
-    payload: Dish;
-}
+export const adicionarDish = createAsyncThunk(
+    'dishes/adicionar',
+    async (dish: Dish) => {
+        return await DishesService.adicionar(dish);
+    }
+)
 
 export const buscarDishes = createAsyncThunk(
     'dishes/buscar',
@@ -28,19 +30,22 @@ const dishesSlice = createSlice({
     name: 'dishes',
     initialState: { 
         items: [],
-    },
+    } as DishesState,
     reducers: {
-        adiconarDishes: (state: DishesState, action: AddDishAction) => {
-            state.items.push(action.payload);
-        }
+        // adiconarDishes: (state: DishesState, action: AddDishAction) => {
+        //     state.items.push(action.payload);
+        // }
     },
     extraReducers: buider => {
         buider.addCase(buscarDishes.fulfilled, (state, action) => {
             state.items = action.payload;
         })
+        .addCase(adicionarDish.fulfilled, (state, action) => {
+            state.items.push(action.payload);
+        })
     }
 });
 
-export const { adiconarDishes } = dishesSlice.actions;
+// export const { adiconarDishes } = dishesSlice.actions;
 
 export default dishesSlice.reducer;

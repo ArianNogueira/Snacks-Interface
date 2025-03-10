@@ -24,7 +24,7 @@ export function BrintableTicket(items: Dish[], metodoPagamento: String, total: N
     const dataFormatada = formatarData();
 
     return (
-        <div style={{ padding: "-8px", margin: "-8px" }}>
+        <div key={1} style={{ padding: "-8px", margin: "-8px" }}>
             <span>=========================================================</span>
             <h1 style={{ fontSize: "25px", textAlign: "center" }}>Cléo Nogueira Lanches</h1>
             <span>=========================================================</span>
