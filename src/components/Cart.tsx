@@ -6,6 +6,7 @@ import { useRef, useState } from "react";
 import ReactDOMServer from 'react-dom/server';
 import { BrintableTicket } from "./BrintableTicket";
 import { Form } from "./Form";
+import { message } from "@/store/middlewares/utils/message";
 
 export function Aside() {
 
@@ -19,12 +20,14 @@ export function Aside() {
 
     const handlePrint = () => {
         if(!nomeCliente) {
-            alert("Informe o nome do cliente");
+            message("Informe o nome do cliente", "error");
+            // alert("Informe o nome do cliente");
             return;
         }
 
         if (!metodoPagamento) {
-            alert("Selecione um método de pagamento antes de continuar!");
+            message("Selecione um método de pagamento antes de continuar!", "error");
+            // alert("Selecione um método de pagamento antes de continuar!");
             return;
         }
 

@@ -36,7 +36,7 @@ export function ModalDish({ closeModal }: ModalClose) {
                     required
                     type="text"
                     placeholder="Nome"
-                    onChange={(e) => setInfoDish({ ...infoDish, nome: e.target.value.toLocaleLowerCase()})}
+                    onChange={(e) => setInfoDish({ ...infoDish, nome: e.target.value})}
                 />
                 <input
                     className="w-full p-2 my-3 rounded-md placeholder:text-zinc-500 border border-gray-300"
@@ -50,7 +50,7 @@ export function ModalDish({ closeModal }: ModalClose) {
                     required
                     type="number"
                     placeholder="R$"
-                    onChange={(e) => setInfoDish({ ...infoDish, preco: Number(e.target.value.toLocaleLowerCase())})}
+                    onChange={(e) => setInfoDish({ ...infoDish, preco: Number(e.target.value)})}
                 />
                 <input
                     className="w-full p-2 my-3 rounded-md placeholder:text-zinc-500 border border-gray-300"

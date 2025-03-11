@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@chakra-ui/toast": "^7.0.2",
     "@reduxjs/toolkit": "^2.5.1",
     "lucide-react": "^0.475.0",
     "my-app": "file:",

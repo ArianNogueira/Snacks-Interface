@@ -41,7 +41,7 @@ export function BrintableTicket(items: Dish[], metodoPagamento: String, total: N
             </div>
             <span>=========================================================</span>
             {items.map(item =>
-                <div style={{ display: "flex", justifyContent: "space-between", padding: "0 8px" }}>
+                <div key={item.id} style={{ display: "flex", justifyContent: "space-between", padding: "0 8px" }}>
                     <p style={{ padding: "0 10px" }}>{item.quantidade}</p>
                     <p style={{ padding: "0 10px" }}>{item.nome}</p>
                     <p>R$ {item.preco.toFixed(2)}</p>

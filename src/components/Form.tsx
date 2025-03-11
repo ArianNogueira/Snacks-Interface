@@ -17,7 +17,7 @@ export function Form({ metodoPagamento, setMetodoPagamento }: FormProps) {
                     name="payment"
                     value="Dinheiro"
                     checked={metodoPagamento === 'Dinheiro'}
-                    onChange={(e) => setMetodoPagamento(e.target.value.toLowerCase())}
+                    onChange={(e) => setMetodoPagamento(e.target.value)}
                 />
             </label>
             <label className="flex justify-between cursor-pointer">
@@ -29,7 +29,7 @@ export function Form({ metodoPagamento, setMetodoPagamento }: FormProps) {
                     name="payment"
                     value="Pix"
                     checked={metodoPagamento === 'Pix'}
-                    onChange={(e) => setMetodoPagamento(e.target.value.toLowerCase())}
+                    onChange={(e) => setMetodoPagamento(e.target.value)}
                 />
             </label>
             <label className="flex justify-between cursor-pointer">
@@ -41,7 +41,7 @@ export function Form({ metodoPagamento, setMetodoPagamento }: FormProps) {
                     name="payment"
                     value="Débito"
                     checked={metodoPagamento === 'Débito'}
-                    onChange={(e) => setMetodoPagamento(e.target.value.toLowerCase())}
+                    onChange={(e) => setMetodoPagamento(e.target.value)}
                 />
             </label>
             <label className="flex justify-between cursor-pointer">
@@ -53,7 +53,7 @@ export function Form({ metodoPagamento, setMetodoPagamento }: FormProps) {
                     name="payment"
                     value="Crédito"
                     checked={metodoPagamento === 'Crédito'}
-                    onChange={(e) => setMetodoPagamento(e.target.value.toLowerCase())}
+                    onChange={(e) => setMetodoPagamento(e.target.value)}
                 />
             </label>
         </form>
