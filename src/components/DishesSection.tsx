@@ -1,14 +1,14 @@
 'use client';
 
-import Image from 'next/image';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '@/store/reduceres/store';
-import { useEffect, useState } from 'react';
-import { buscarDishes } from '@/store/reduceres/dishesSlice';
 import { addCart } from '@/store/reduceres/cartSlice';
+import { buscarDishes } from '@/store/reduceres/dishesSlice';
+import { AppDispatch, RootState } from '@/store/reduceres/store';
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { ModalDish } from './ModalDish';
 
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 
 import React from 'react';
 
@@ -48,8 +48,8 @@ export function Section() {
         setIsModalOpen(false);
     }
     return (
-        <div>
-            <ToastContainer />
+        <div className='w-full'>
+
             <div className='text-end'>
                 <button
                     className='bg-[#926e56] p-4 text-lg text-white rounded-full mt-5 hover:text-amber-950 duration-300 ease-in text'
@@ -66,23 +66,23 @@ export function Section() {
             <ul key={1} className='grid items-center justify-between grid-cols-1 gap-10 px-5 md:grid-cols-2 lg:grid-cols-3'>
                 {items && items.length > 0 ? (
                     items.map((dishe: Dish) => (
-                        <li key={dishe.id} id={dishe.categoria} className='w-full p-3 mt-8 bg-white rounded-md'>
+                        <li key={dishe.id} id={dishe.categoria} className=' flex flex-col justify-around w-full h-full p-4 mt-8 bg-white rounded-md'>
                             <div className="flex flex-col items-center">
                                 <Image
                                     src={dishe.imagem}
                                     alt="Logo do prato"
                                     width={160}
                                     height={128}
-                                    className="w-40 h-32 duration-300 rounded-md hover:scale-110 hover:-rotate-2" />
+                                    className="w-48 h-40 duration-300 rounded-md hover:scale-110 hover:-rotate-2" />
                             </div>
                             <div className="flex flex-col my-5 gap-y-2">
                                 <p className="text-lg font-bold">{dishe.nome}</p>
-                                {/* <p>{dishe.descricao}</p> */}
+                                <p>{dishe.descricao}</p>
                                 <p>R$ {dishe.preco.toFixed(2)}</p>
                             </div>
-                            <div className="flex flex-col items-center w-full">
+                            <div className="flex flex-col items-center">
                                 <button
-                                    className="bg-[#926e56] hover:bg-[#d1c4ac] duration-300 px-5 py-1 rounde"
+                                    className="bg-[#926e56] hover:bg-[#d1c4ac] duration-300 px-5 py-2 rounded-full"
                                     onClick={() => dispatch(addCart({ id: dishe.id, nome: dishe.nome, quantidade: 1, preco: dishe.preco, precoUnitario: dishe.preco }))}
                                 >
                                     Adicionar Item

@@ -1,13 +1,13 @@
 import { mudarQuantidade, removerDish, resetarCart } from "@/store/reduceres/cartSlice";
-import { AppDispatch, RootState } from "@/store/reduceres/store"
-import { useDispatch, useSelector } from "react-redux"
+import { AppDispatch, RootState } from "@/store/reduceres/store";
 import { Printer } from 'lucide-react';
 import { useRef, useState } from "react";
 import ReactDOMServer from 'react-dom/server';
+import { useDispatch, useSelector } from "react-redux";
 import { BrintableTicket } from "./BrintableTicket";
 import { Form } from "./Form";
 
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 
 
 
@@ -61,8 +61,7 @@ export function Aside() {
 
     return (
 
-        <aside className="w-full md:w-80 md:ml-6 bg-[#f5f5f5] px-7 py-6 rounded-lg">
-            <ToastContainer />
+        <aside className="w-16 md:w-[26em] md:ml-6 bg-[#f5f5f5] px-7 py-6 rounded-lg">
             {items && items.length > 0 ? (
 
                 <ul>

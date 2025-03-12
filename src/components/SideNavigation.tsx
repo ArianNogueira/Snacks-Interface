@@ -2,7 +2,7 @@
 
 export function Nav() {
     return (
-        <nav className="relative md:sticky top-auto md:top-5 bg-[#f5f5f5] p-6 rounded-lg w-full md:w-[180px] max-h-60 text-center mr-0 md:mr-6 mb-6">
+        <nav className="relative md:sticky top-auto md:top-5 bg-[#f5f5f5] p-6 rounded-lg w-16 md:w-[180px] max-h-60 text-center mr-0 md:mr-6 mb-6">
             <a href="#almoço/jantar" className="block p-4">Almoço/Jantar</a>
             <hr className="border-[#926e56] border-x-1" />
             <a href="#lanches" className="block p-4">Lanches</a>

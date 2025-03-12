@@ -125,7 +125,7 @@
       "nome": "Açaí",
       "categoria": "bebidas",
       "preco": 20,
-      "imagem": "blob:http://localhost:3000/147a43b1-abda-473f-9b69-7d35a3f21f95"
+      "imagem": "/assets/açai.jpg"
     }
   ]
 }
