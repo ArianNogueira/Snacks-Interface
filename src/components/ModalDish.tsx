@@ -5,6 +5,8 @@ import { useDispatch } from 'react-redux';
 import { AppDispatch } from '@/store/reduceres/store';
 import { adicionarDish } from "@/store/reduceres/dishesSlice";
 
+import { toast } from 'react-toastify';
+
 interface Infos {
     nome: string,
     categoria: string,
@@ -23,7 +25,12 @@ export function ModalDish({ closeModal }: ModalClose) {
     const [infoDish, setInfoDish] = useState({} as Infos);
 
     const handleAddDish = () => {
+        if(!infoDish.nome || !infoDish.categoria || !infoDish.preco || !infoDish.imagem) {
+            toast.error("Preencha todos os campos!")
+            return;
+        }
         dispatch(adicionarDish(infoDish));
+        toast.success("Prato adicionado com sucesso!")
         closeModal();
     }
 
@@ -49,7 +56,7 @@ export function ModalDish({ closeModal }: ModalClose) {
                     className="w-full p-2 my-3 rounded-md placeholder:text-zinc-500 border border-gray-300"
                     required
                     type="number"
-                    placeholder="R$"
+                    placeholder="R$ 0,00"
                     onChange={(e) => setInfoDish({ ...infoDish, preco: Number(e.target.value)})}
                 />
                 <input

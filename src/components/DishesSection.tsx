@@ -4,9 +4,14 @@ import Image from 'next/image';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store/reduceres/store';
 import { useEffect, useState } from 'react';
-import { buscarDishes } from '@/store/reduceres/dishesSlice';
+import { buscarDishes, deletarDish } from '@/store/reduceres/dishesSlice';
 import { addCart } from '@/store/reduceres/cartSlice';
 import { ModalDish } from './ModalDish';
+
+import { toast } from 'react-toastify';
+
+import React from 'react';
+import { EditModal } from './editModal';
 
 interface Dish {
     id: number;
@@ -16,7 +21,13 @@ interface Dish {
     imagem: string;
     preco: number;
     quantidade: number;
-  }
+}
+
+function notify(tipo: boolean): React.ReactNode {
+    return tipo === false
+        ? toast.error("Erro ao carregar os pratos!")
+        : toast.success("Pratos carregados com sucesso!")
+}
 
 export function Section() {
 
@@ -27,19 +38,28 @@ export function Section() {
         dispatch(buscarDishes());
     }, [dispatch]);
 
-    const [isModalOpen, setIsModalOpen] = useState(false)
-    
-    const handleOpenModal = () => {
-        setIsModalOpen(true);
+    const [modalOpen, setModalOpen] = useState<"add" | "edit" | false>(false);
+    const [selectedDish, setSelectedDish] = useState<Dish>();
+
+    const handleOpenModal = () => setModalOpen("add");
+    const handleEditModal = (dish: Dish) => {
+        setModalOpen('edit')
+        setSelectedDish(dish)
+    }
+    const handleCloseModal = () => setModalOpen(false);
+
+    const handleDeletarDish = async (dish: Dish) => {
+        await dispatch(deletarDish(dish))
+        toast.success("Prato deletado com sucesso!")
+        dispatch(buscarDishes());
     }
 
-    const handleCloseModal = () => {
-        setIsModalOpen(false);
-    }
+    const orderItems = ["almoço/jantar", "lanches", "bebidas"];
+
     return (
-        <div>
+        <div> 
             <div className='text-end'>
-                <button 
+                <button
                     className='bg-[#926e56] p-4 text-lg text-white rounded-full mt-5 hover:text-amber-950 duration-300 ease-in text'
                     onClick={handleOpenModal}
                 >
@@ -47,13 +67,15 @@ export function Section() {
                 </button>
             </div>
 
-            {isModalOpen && (
-                <ModalDish closeModal={handleCloseModal}/>
-            )}
+            {modalOpen === "add" && <ModalDish closeModal={handleCloseModal} />}
+            {modalOpen === "edit" && <EditModal closeModal={handleCloseModal} dish={selectedDish}/>}
 
             <ul key={1} className='grid items-center justify-between grid-cols-1 gap-10 px-5 md:grid-cols-2 lg:grid-cols-3'>
                 {items && items.length > 0 ? (
-                    items.map((dishe: Dish) => (
+                    items
+                    .slice()
+                    .sort((a, b) => orderItems.indexOf(a.categoria) - orderItems.indexOf(b.categoria))
+                    .map((dishe: Dish) => (
                         <li key={dishe.id} id={dishe.categoria} className='w-full p-3 mt-8 bg-white rounded-md'>
                             <div className="flex flex-col items-center">
                                 <Image
@@ -68,18 +90,36 @@ export function Section() {
                                 {/* <p>{dishe.descricao}</p> */}
                                 <p>R$ {dishe.preco.toFixed(2)}</p>
                             </div>
-                            <div className="flex flex-col items-center w-full">
+                            <div className="flex flex-col gap-y-3 items-center text-white w-full">
                                 <button
-                                    className="bg-[#926e56] hover:bg-[#d1c4ac] duration-300 px-5 py-1 rounde"
-                                    onClick={() => dispatch(addCart({id: dishe.id, nome: dishe.nome, quantidade: 1, preco: dishe.preco, precoUnitario: dishe.preco}))} 
+                                    className="bg-[#926e56] hover:bg-[#d1c4ac] duration-300 px-5 py-1 rounded-full w-36"
+                                    onClick={() => dispatch(addCart({ id: dishe.id, nome: dishe.nome, quantidade: 1, preco: dishe.preco, precoUnitario: dishe.preco }))}
                                 >
                                     Adicionar Item
+                                </button>
+                                
+                                <button
+                                    className="bg-yellow-400 hover:bg-[#d1c4ac] duration-300 px-5 py-1 rounded-full w-36"
+                                    onClick={() => handleEditModal(dishe)}
+                                    >
+                                    Editar
+                                </button>
+
+                                <button
+                                    className="bg-red-500 hover:bg-[#d1c4ac] duration-300 px-5 py-1 rounded-full w-36"
+                                    onClick={() => handleDeletarDish(dishe)}
+                                    >
+                                    Excluir
                                 </button>
                             </div>
                         </li>
                     ))
+                    // notify(true)
                 ) : (
-                    <p>Nenhum prato encontrado.</p>
+                    <div>
+                        {/* {notify(false)} */}
+                        <p>Nenhum prato encontrado.</p>
+                    </div>
                 )}
             </ul>
         </div>

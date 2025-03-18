@@ -1,12 +1,13 @@
 import { mudarQuantidade, removerDish, resetarCart } from "@/store/reduceres/cartSlice";
 import { AppDispatch, RootState } from "@/store/reduceres/store"
 import { useDispatch, useSelector } from "react-redux"
-import { Printer } from 'lucide-react';
+import { Printer, X } from 'lucide-react';
 import { useRef, useState } from "react";
 import ReactDOMServer from 'react-dom/server';
 import { BrintableTicket } from "./BrintableTicket";
 import { Form } from "./Form";
-import { message } from "@/store/middlewares/utils/message";
+
+import { toast } from 'react-toastify';
 
 export function Aside() {
 
@@ -14,20 +15,23 @@ export function Aside() {
     const { items = [] } = useSelector((state: RootState) => state.cart);
     const [metodoPagamento, setMetodoPagamento] = useState<string>('');
     const [nomeCliente, setNomeCliente] = useState<string>('');
+    const [observacao, setObservacao] = useState<string>('');
 
     let total = items.reduce((acc, item) => acc + item.preco, 0);
     const printRef = useRef<HTMLDivElement>(null);
 
+    function notify(mensagem: string) {
+        toast.error(mensagem)
+    }
+
     const handlePrint = () => {
-        if(!nomeCliente) {
-            message("Informe o nome do cliente", "error");
-            // alert("Informe o nome do cliente");
+        if (!nomeCliente) {
+            notify("Informe o nome do cliente!");
             return;
         }
 
         if (!metodoPagamento) {
-            message("Selecione um método de pagamento antes de continuar!", "error");
-            // alert("Selecione um método de pagamento antes de continuar!");
+            notify("Informe o método de pagamento!");
             return;
         }
 
@@ -35,7 +39,7 @@ export function Aside() {
             const janela = window.open();
             if (!janela) return;
 
-            const ticketHtml = ReactDOMServer.renderToStaticMarkup(BrintableTicket(items, metodoPagamento, total, nomeCliente));
+            const ticketHtml = ReactDOMServer.renderToStaticMarkup(BrintableTicket(items, metodoPagamento, total, nomeCliente, observacao));
 
             janela?.document.write(`
                 <html>
@@ -55,31 +59,33 @@ export function Aside() {
     };
 
     return (
-        <aside className="w-full md:w-80 md:ml-6 bg-[#f5f5f5] px-7 py-6 rounded-lg">
 
+        <aside className="w-full md:w-80 md:ml-6 bg-[#f5f5f5] px-7 py-6 rounded-lg">
             {items && items.length > 0 ? (
 
-                <ul>
-                    <button className="mb-3" onClick={handlePrint}>
-                        <Printer />
-                    </button>
+                <ul className="">
+                    <div className="text-end">
+                        <button onClick={handlePrint}>
+                            <Printer />
+                        </button>
+                    </div>
 
                     <div ref={printRef}>
 
-                        <input className="w-full p-2 my-3 rounded-md placeholder:text-zinc-500"
-                        required 
-                        type="text" 
-                        placeholder="Informe o nome do cliente" 
-                        onChange={(e) => setNomeCliente(e.target.value)}
+                        <input className="w-full p-2 my-5 rounded-md placeholder:text-zinc-500"
+                            required
+                            type="text"
+                            placeholder="Informe o nome do cliente"
+                            onChange={(e) => setNomeCliente(e.target.value)}
                         />
 
                         {items.map((item: { id: number; nome: string; preco: number, quantidade: number }) => (
-                            <li key={item.id} className="w-full list-none">
+                            <li key={item.id} className="w-full list-none mt-2">
                                 <div className="flex flex-col gap-y-2">
                                     <div className="flex justify-between">
                                         <p className="text-lg font-bold">{item.nome}</p>
                                         <button onClick={() => dispatch(removerDish({ id: item.id }))}>
-                                            X
+                                            <X />
                                         </button>
                                     </div>
                                     <div className="flex justify-between mb-2">
@@ -112,9 +118,18 @@ export function Aside() {
 
                     <div>
                         <h3 className="text-xl text-[#382110] font-bold mb-2 mt-5">Pagamento</h3>
-                        <Form 
-                            metodoPagamento={metodoPagamento} 
+                        <Form
+                            metodoPagamento={metodoPagamento}
                             setMetodoPagamento={setMetodoPagamento}
+                        />
+                    </div>
+
+                    <div>
+                        <textarea
+                            className="w-full p-3 my-5 rounded-md placeholder:text-zinc-500"
+                            cols={34} rows={5}
+                            placeholder="Coloque a observação aqui!"
+                            onChange={(e) => setObservacao(e.target.value)}
                         />
                     </div>
 

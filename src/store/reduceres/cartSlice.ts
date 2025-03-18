@@ -6,6 +6,7 @@ interface Dish {
     preco: number;
     precoUnitario: number;
     quantidade: number;
+    observacao?: string;
   }
 
 const cartSlice = createSlice({

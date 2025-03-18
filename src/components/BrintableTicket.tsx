@@ -6,13 +6,13 @@ interface Dish {
     quantidade: number;
 }
 
-export function BrintableTicket(items: Dish[], metodoPagamento: String, total: Number, nome: string) {
+export function BrintableTicket(items: Dish[], metodoPagamento: String, total: Number, nome: string, observacao: string) {
     const gerador = Math.floor(Math.random() * 100);
 
     const formatarData = () => {
         const data = new Date();
         const dia = String(data.getDate()).padStart(2, "0");
-        const mes = String(data.getMonth() + 1).padStart(2, "0"); // Janeiro é 0
+        const mes = String(data.getMonth() + 1).padStart(2, "0");
         const ano = data.getFullYear();
         const horas = String(data.getHours()).padStart(2, "0");
         const minutos = String(data.getMinutes()).padStart(2, "0");
@@ -22,6 +22,12 @@ export function BrintableTicket(items: Dish[], metodoPagamento: String, total: N
     };
 
     const dataFormatada = formatarData();
+
+    const obsFormatada = observacao
+        .split("\n")
+        .map((palavra, index) => (
+            <p key={index}><strong>Obs.:</strong> {palavra} <br /></p>
+        ));
 
     return (
         <div key={1} style={{ padding: "-8px", margin: "-8px" }}>
@@ -55,7 +61,7 @@ export function BrintableTicket(items: Dish[], metodoPagamento: String, total: N
             <span>=========================================================</span>
             <div style={{ padding: "0 8px" }}>
                 <p>Atendente: Taia</p>
-                <p>OBS.:</p>
+                {obsFormatada} 
             </div>
             <div style={{ textAlign: "center" }}>
                 <span>................................................................</span>

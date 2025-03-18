@@ -1,8 +1,8 @@
 interface Dish {
-    id: Number;
+    id: number;
     nome: string;
-    preco: Number;
-    quantidade: Number,
+    preco: number;
+    quantidade: number,
     categoria: string,
     imagem: string
 }
@@ -29,6 +29,35 @@ const DishesService = {
 
         return await resposta.json();
     },
+
+    editar: async (dish: Dish | null) => {
+        console.log(dish?.id);
+        const resposta = await fetch(`http://localhost:3001/dishes/${dish?.id}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(dish),
+        });
+
+        if(!resposta.ok) {
+            throw new Error("Erro ao editar prato!");
+        }
+        return await resposta.json();
+    },
+    deletar: async(dish: Dish) => {
+        const resposta = await fetch(`http://localhost:3001/dishes/${dish?.id}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(dish),
+        });
+        if(!resposta.ok) {
+            throw new Error("Erro ao deletar o prato!");
+        }
+        return await resposta.json();
+    }
 }
 
 export default DishesService;
