@@ -7,9 +7,35 @@ interface Dish {
 }
 
 export function BrintableTicket(items: Dish[], metodoPagamento: String, total: Number, nome: string, observacao: string) {
-    const hora = new Date().getHours();
-    let contador = hora === 0 ? 0 : (Number(localStorage.getItem("qtd")) || 0) + 1;
-    localStorage.setItem("qtd", String(contador));
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const today = now.toDateString(); // Data sem horas
+
+    // Obtém a última data salva
+    const lastDate = localStorage.getItem("lastDate") || "";
+
+    // Definição dos períodos de funcionamento
+    const periods = [
+        { start: { h: 9, m: 30 }, end: { h: 14, m: 0 } },
+        { start: { h: 18, m: 0 }, end: { h: 22, m: 30 } }
+    ];
+
+    // Verifica se está dentro de algum dos períodos definidos
+    const operation = periods.some(({ start, end }) =>
+        (hours > start.h || (hours === start.h && minutes >= start.m)) &&
+        (hours < end.h || (hours === end.h && minutes <= end.m))
+    );
+
+    // Se for um novo dia ou se estiver dentro do horário permitido, zera o contador
+    if (lastDate !== today || !operation) {
+        localStorage.setItem("qtd", "0");
+        localStorage.setItem("lastDate", today);
+    }
+
+    // Atualiza o número do pedido
+    let orderNumber = (Number(localStorage.getItem("qtd")) || 0) + 1;
+    localStorage.setItem("qtd", String(orderNumber));
     
     const formatarData = () => {
         const data = new Date();
@@ -37,7 +63,7 @@ export function BrintableTicket(items: Dish[], metodoPagamento: String, total: N
             <h1 style={{ fontSize: "25px", textAlign: "center" }}>Cléo Nogueira Lanches</h1>
             <span>=========================================================</span>
             <div style={{ padding: "0 8px" }}>
-                <p><strong>PEDIDO: N° {contador}</strong></p>
+                <p><strong>PEDIDO: N° {orderNumber}</strong></p>
                 <p>{dataFormatada}</p>
                 <p>Cliente: {nome}</p>
             </div>

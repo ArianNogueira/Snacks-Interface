@@ -20,15 +20,42 @@ interface ModalClose {
     closeModal: () => void;
 }
 
+const almoco_jantar = ["almoco", "almoço", "janta", "jantr"];
+const lanhces = ["lanche", "lanch", "lache"];
+const bebidas = ["bebida", "bebids", "bebdas"]
+
 export function ModalDish({ closeModal }: ModalClose) {
     const dispatch = useDispatch<AppDispatch>();
     const [infoDish, setInfoDish] = useState({} as Infos);
+
+    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if(file) {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onloadend = () => {
+                setInfoDish({ ...infoDish, imagem: reader.result as string });
+            };
+        }
+    };
 
     const handleAddDish = () => {
         if(!infoDish.nome || !infoDish.categoria || !infoDish.preco || !infoDish.imagem) {
             toast.error("Preencha todos os campos!")
             return;
         }
+
+        if(almoco_jantar.includes(infoDish.categoria)) {
+            infoDish.categoria = "almoço/jantar"
+        } else if (lanhces.includes(infoDish.categoria)) {
+            infoDish.categoria = "lanches"
+        } else if (bebidas.includes(infoDish.categoria)) {
+            infoDish.categoria = "bebidas"
+        } else {
+            toast.error("Opção de caterogia incorreta!");
+            return
+        }
+
         dispatch(adicionarDish(infoDish));
         toast.success("Prato adicionado com sucesso!")
         closeModal();
@@ -60,6 +87,12 @@ export function ModalDish({ closeModal }: ModalClose) {
                     onChange={(e) => setInfoDish({ ...infoDish, preco: Number(e.target.value)})}
                 />
                 <input
+                    className="w-full p-2 my-3 rounded-md placeholder:text-zinc-500 border border-gray-300" 
+                    required
+                    type="file"
+                    onChange={handleImageUpload} 
+                />
+                {/* <input
                     className="w-full p-2 my-3 rounded-md placeholder:text-zinc-500 border border-gray-300"
                     required
                     type="file"
@@ -72,7 +105,7 @@ export function ModalDish({ closeModal }: ModalClose) {
                             }
                         }
                     }
-                />
+                /> */}
                 <div className="flex justify-between ">
                     <button
                         className='bg-[#926e56] px-4 py-2 text-lg text-white rounded-full mt-5 hover:text-amber-950 duration-300 ease-in text'
