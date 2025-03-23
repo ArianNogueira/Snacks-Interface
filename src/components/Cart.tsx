@@ -30,7 +30,7 @@ export function Aside() {
         }
     }, [items]);
 
-    const savedItem = JSON.parse(localStorage.getItem("dishCart") || "[]");
+    // const savedItem = JSON.parse(localStorage.getItem("dishCart") || "[]");
 
     const handlePrint = () => {
 
