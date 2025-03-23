@@ -1,6 +1,6 @@
 'use client'
 import Image from 'next/image';
-import logo from '../../public/assets/Logo.png';
+import logo from '../assets/Logo.png';
 
 
 export function Header() {
