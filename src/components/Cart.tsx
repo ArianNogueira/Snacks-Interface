@@ -2,7 +2,7 @@ import { mudarQuantidade, removerDish, resetarCart } from "@/store/reduceres/car
 import { AppDispatch, RootState } from "@/store/reduceres/store"
 import { useDispatch, useSelector } from "react-redux"
 import { Printer, X } from 'lucide-react';
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ReactDOMServer from 'react-dom/server';
 import { BrintableTicket } from "./BrintableTicket";
 import { Form } from "./Form";
@@ -24,7 +24,16 @@ export function Aside() {
         toast.error(mensagem)
     }
 
+    useEffect(() => {
+        if(items.length > 0) {
+            localStorage.setItem("dishCart", JSON.stringify(items));
+        }
+    }, [items]);
+
+    const savedItem = JSON.parse(localStorage.getItem("dishCart") || "[]");
+
     const handlePrint = () => {
+
         if (!nomeCliente) {
             notify("Informe o nome do cliente!");
             return;
@@ -57,12 +66,10 @@ export function Aside() {
             setMetodoPagamento("")
         }
     };
-
+    
     return (
-
         <aside className="w-full md:w-80 md:ml-6 bg-[#f5f5f5] px-7 py-6 rounded-lg">
             {items && items.length > 0 ? (
-
                 <ul className="">
                     <div className="text-end">
                         <button onClick={handlePrint}>
@@ -132,9 +139,9 @@ export function Aside() {
                             onChange={(e) => setObservacao(e.target.value)}
                         />
                     </div>
-
+                    
                 </ul>
-
+                
             ) : (
                 <p className="text-center">Ainda não há nenhum pedido</p>
             )}

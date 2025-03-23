@@ -7,8 +7,10 @@ interface Dish {
 }
 
 export function BrintableTicket(items: Dish[], metodoPagamento: String, total: Number, nome: string, observacao: string) {
-    const gerador = Math.floor(Math.random() * 100);
-
+    const hora = new Date().getHours();
+    let contador = hora === 0 ? 0 : (Number(localStorage.getItem("qtd")) || 0) + 1;
+    localStorage.setItem("qtd", String(contador));
+    
     const formatarData = () => {
         const data = new Date();
         const dia = String(data.getDate()).padStart(2, "0");
@@ -35,7 +37,7 @@ export function BrintableTicket(items: Dish[], metodoPagamento: String, total: N
             <h1 style={{ fontSize: "25px", textAlign: "center" }}>Cléo Nogueira Lanches</h1>
             <span>=========================================================</span>
             <div style={{ padding: "0 8px" }}>
-                <p><strong>PEDIDO: N° {gerador}</strong></p>
+                <p><strong>PEDIDO: N° {contador}</strong></p>
                 <p>{dataFormatada}</p>
                 <p>Cliente: {nome}</p>
             </div>
