@@ -24,6 +24,10 @@ body {
     padding-bottom: 24px;
 }
 
+header {
+    background-image: url('../../public/assets/bg.jpg');
+}
+
 .container-padding {
     padding-left: calc((100% - var(--largura-padrao)) / 2);
     padding-right: calc((100% - var(--largura-padrao)) / 2);
