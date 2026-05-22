@@ -8,6 +8,7 @@ import { BrintableTicket } from "./BrintableTicket";
 import { Form } from "./Form";
 
 import { toast } from 'react-toastify';
+import OrdersService from "@/services/orders";
 
 export function Aside() {
 
@@ -32,7 +33,7 @@ export function Aside() {
 
     // const savedItem = JSON.parse(localStorage.getItem("dishCart") || "[]");
 
-    const handlePrint = () => {
+    const handlePrint = async () => {
 
         if (!nomeCliente) {
             notify("Informe o nome do cliente!");
@@ -45,6 +46,26 @@ export function Aside() {
         }
 
         if (printRef.current) {
+            try {
+                await OrdersService.adicionar({
+                    nomeCliente,
+                    metodoPagamento,
+                    observacao,
+                    total,
+                    created_at: new Date().toISOString(),
+                    items: items.map((item) => ({
+                        dishId: item.id,
+                        nome: item.nome,
+                        precoUnitario: item.precoUnitario,
+                        quantidade: item.quantidade,
+                        total: item.preco,
+                    })),
+                });
+            } catch {
+                notify("Não foi possível salvar o pedido. Tente novamente.");
+                return;
+            }
+
             const janela = window.open();
             if (!janela) return;
 
@@ -64,6 +85,9 @@ export function Aside() {
             janela?.print();
             dispatch(resetarCart())
             setMetodoPagamento("")
+            setNomeCliente("")
+            setObservacao("")
+            toast.success("Pedido salvo com sucesso!")
         }
     };
     
@@ -83,6 +107,7 @@ export function Aside() {
                             required
                             type="text"
                             placeholder="Informe o nome do cliente"
+                            value={nomeCliente}
                             onChange={(e) => setNomeCliente(e.target.value)}
                         />
 
@@ -136,6 +161,7 @@ export function Aside() {
                             className="w-full p-3 my-5 rounded-md placeholder:text-zinc-500"
                             cols={34} rows={5}
                             placeholder="Coloque a observação aqui!"
+                            value={observacao}
                             onChange={(e) => setObservacao(e.target.value)}
                         />
                     </div>
