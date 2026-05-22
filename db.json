@@ -120,5 +120,7 @@
       "categoria": "bebidas",
       "descricao": "Suco bem gelado feito na hora"
     }
-  ]
+  ],
+  "orders": [],
+  "$schema": "./node_modules/json-server/schema.json"
 }
