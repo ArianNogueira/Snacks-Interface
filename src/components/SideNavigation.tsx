@@ -2,13 +2,12 @@
 
 export function Nav() {
     return (
-        <nav className="relative md:sticky top-auto md:top-5 bg-[#f5f5f5] p-6 rounded-lg w-full md:w-[180px] max-h-60 text-center mr-0 md:mr-6 mb-6">
-            <a href="#almoço/jantar" className="block p-4">Almoço/Jantar</a>
-            <hr className="border-[#926e56] border-x-1" />
-            <a href="#lanches" className="block p-4">Lanches</a>
-            <hr className="border-[#926e56] border-x-1" />
-            <a href="#bebidas" className="block p-4">Bebidas</a>
-            <hr className="border-[#926e56] border-x-1" />
+        <nav aria-label="Categorias" className="sticky top-2 z-20 flex w-full overflow-x-auto rounded-lg bg-[#f5f5f5]/95 p-2 text-center shadow-sm backdrop-blur lg:top-5 lg:flex-col lg:p-4">
+            <a href="#almoço/jantar" className="min-w-max flex-1 rounded-md px-4 py-3 transition-colors hover:bg-[#926e56] hover:text-white">Almoço/Jantar</a>
+            <hr className="hidden border-[#926e56] lg:block" />
+            <a href="#lanches" className="min-w-max flex-1 rounded-md px-4 py-3 transition-colors hover:bg-[#926e56] hover:text-white">Lanches</a>
+            <hr className="hidden border-[#926e56] lg:block" />
+            <a href="#bebidas" className="min-w-max flex-1 rounded-md px-4 py-3 transition-colors hover:bg-[#926e56] hover:text-white">Bebidas</a>
         </nav>
     );
 }

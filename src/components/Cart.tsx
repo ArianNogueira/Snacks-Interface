@@ -8,7 +8,54 @@ import { BrintableTicket } from "./BrintableTicket";
 import { Form } from "./Form";
 
 import { toast } from 'react-toastify';
-import OrdersService from "@/services/orders";
+import OrdersService, { getOrderPeriod } from "@/services/orders";
+
+function printTicket(html: string) {
+    const iframe = document.createElement("iframe");
+    iframe.setAttribute("aria-hidden", "true");
+    iframe.style.position = "fixed";
+    iframe.style.right = "0";
+    iframe.style.bottom = "0";
+    iframe.style.width = "0";
+    iframe.style.height = "0";
+    iframe.style.border = "0";
+    document.body.appendChild(iframe);
+
+    const printWindow = iframe.contentWindow;
+    const printDocument = iframe.contentDocument;
+
+    if (!printWindow || !printDocument) {
+        iframe.remove();
+        throw new Error("Não foi possível preparar a impressão.");
+    }
+
+    const cleanup = () => iframe.remove();
+    printWindow.onafterprint = cleanup;
+    printDocument.open();
+    printDocument.write(`
+        <!doctype html>
+        <html lang="pt-BR">
+            <head>
+                <meta charset="utf-8" />
+                <title>Impressão do pedido</title>
+                <style>
+                    @page { margin: 6mm; }
+                    body { margin: 0; color: #000; font-family: Arial, sans-serif; }
+                </style>
+            </head>
+            <body>${html}</body>
+        </html>
+    `);
+    printDocument.close();
+
+    window.setTimeout(() => {
+        printWindow.focus();
+        printWindow.print();
+    }, 100);
+
+    // Segurança para navegadores que não disparam o evento afterprint.
+    window.setTimeout(cleanup, 300000);
+}
 
 export function Aside() {
 
@@ -45,14 +92,26 @@ export function Aside() {
             return;
         }
 
+        const now = new Date();
+        const periodo = getOrderPeriod(now);
+
+        if (!periodo) {
+            notify("Os pedidos são numerados somente das 09h às 14h59 e das 18h às 23h59.");
+            return;
+        }
+
         if (printRef.current) {
+            const createdAt = now.toISOString();
+            let numeroPedido: number;
+
             try {
-                await OrdersService.adicionar({
+                const savedOrder = await OrdersService.adicionar({
                     nomeCliente,
                     metodoPagamento,
                     observacao,
                     total,
-                    created_at: new Date().toISOString(),
+                    created_at: createdAt,
+                    periodo,
                     items: items.map((item) => ({
                         dishId: item.id,
                         nome: item.nome,
@@ -61,28 +120,14 @@ export function Aside() {
                         total: item.preco,
                     })),
                 });
+                numeroPedido = savedOrder.numeroPedido!;
             } catch {
                 notify("Não foi possível salvar o pedido. Tente novamente.");
                 return;
             }
 
-            const janela = window.open();
-            if (!janela) return;
-
-            const ticketHtml = ReactDOMServer.renderToStaticMarkup(BrintableTicket(items, metodoPagamento, total, nomeCliente, observacao));
-
-            janela?.document.write(`
-                <html>
-                    <head>
-                        <title>Impressão do Carrinho</title>
-                    </head>
-                    <body>
-                        ${ticketHtml}
-                    </body>
-                </html>
-            `);
-            janela?.document.close();
-            janela?.print();
+            const ticketHtml = ReactDOMServer.renderToStaticMarkup(BrintableTicket(items, metodoPagamento, total, nomeCliente, observacao, numeroPedido, periodo, createdAt));
+            printTicket(ticketHtml);
             dispatch(resetarCart())
             setMetodoPagamento("")
             setNomeCliente("")
@@ -92,7 +137,7 @@ export function Aside() {
     };
     
     return (
-        <aside className="w-full md:w-80 md:ml-6 bg-[#f5f5f5] px-7 py-6 rounded-lg">
+        <aside className="w-full min-w-0 rounded-lg bg-[#f5f5f5] px-4 py-5 shadow-sm sm:px-6 lg:col-start-2 xl:sticky xl:top-5 xl:col-start-auto xl:px-7 xl:py-6">
             {items && items.length > 0 ? (
                 <ul className="">
                     <div className="text-end">
@@ -112,16 +157,16 @@ export function Aside() {
                         />
 
                         {items.map((item: { id: number; nome: string; preco: number, quantidade: number }) => (
-                            <li key={item.id} className="w-full list-none mt-2">
+                            <li key={item.id} className="mt-2 w-full min-w-0 list-none">
                                 <div className="flex flex-col gap-y-2">
-                                    <div className="flex justify-between">
-                                        <p className="text-lg font-bold">{item.nome}</p>
+                                    <div className="flex items-start justify-between gap-2">
+                                        <p className="min-w-0 break-words text-lg font-bold">{item.nome}</p>
                                         <button onClick={() => dispatch(removerDish({ id: item.id }))}>
                                             <X />
                                         </button>
                                     </div>
-                                    <div className="flex justify-between mb-2">
-                                        <p className="flex gap-1">
+                                    <div className="mb-2 flex flex-col justify-between gap-2 sm:flex-row sm:items-center xl:flex-col xl:items-stretch 2xl:flex-row 2xl:items-center">
+                                        <p className="flex flex-wrap items-center gap-1">
                                             Quantidade:
                                             <button
                                                 className="bg-[#926e56] min-w-7 px-2 rounded-sm"
@@ -135,7 +180,7 @@ export function Aside() {
                                                 +
                                             </button>
                                         </p>
-                                        <p>R$ {item.preco.toFixed(2)}</p>
+                                        <p className="whitespace-nowrap">R$ {item.preco.toFixed(2)}</p>
                                     </div>
                                 </div>
                                 <hr className="border-[#926e56] border-x-1 mb-3"></hr>
@@ -159,7 +204,7 @@ export function Aside() {
                     <div>
                         <textarea
                             className="w-full p-3 my-5 rounded-md placeholder:text-zinc-500"
-                            cols={34} rows={5}
+                            rows={5}
                             placeholder="Coloque a observação aqui!"
                             value={observacao}
                             onChange={(e) => setObservacao(e.target.value)}

@@ -6,39 +6,10 @@ interface Dish {
     quantidade: number;
 }
 
-export function BrintableTicket(items: Dish[], metodoPagamento: String, total: Number, nome: string, observacao: string) {
-    const now = new Date();
-    const hours = now.getHours();
-    const minutes = now.getMinutes();
-    const today = now.toDateString(); // Data sem horas
-
-    // Obtém a última data salva
-    const lastDate = localStorage.getItem("lastDate") || "";
-
-    // Definição dos períodos de funcionamento
-    const periods = [
-        { start: { h: 9, m: 30 }, end: { h: 14, m: 0 } },
-        { start: { h: 18, m: 0 }, end: { h: 22, m: 30 } }
-    ];
-
-    // Verifica se está dentro de algum dos períodos definidos
-    const operation = periods.some(({ start, end }) =>
-        (hours > start.h || (hours === start.h && minutes >= start.m)) &&
-        (hours < end.h || (hours === end.h && minutes <= end.m))
-    );
-
-    // Se for um novo dia ou se estiver dentro do horário permitido, zera o contador
-    if (lastDate !== today || !operation) {
-        localStorage.setItem("qtd", "0");
-        localStorage.setItem("lastDate", today);
-    }
-
-    // Atualiza o número do pedido
-    let orderNumber = (Number(localStorage.getItem("qtd")) || 0) + 1;
-    localStorage.setItem("qtd", String(orderNumber));
+export function BrintableTicket(items: Dish[], metodoPagamento: string, total: number, nome: string, observacao: string, orderNumber: number, periodo: string, createdAt: string) {
     
     const formatarData = () => {
-        const data = new Date();
+        const data = new Date(createdAt);
         const dia = String(data.getDate()).padStart(2, "0");
         const mes = String(data.getMonth() + 1).padStart(2, "0");
         const ano = data.getFullYear();
@@ -64,6 +35,7 @@ export function BrintableTicket(items: Dish[], metodoPagamento: String, total: N
             <span>=========================================================</span>
             <div style={{ padding: "0 8px" }}>
                 <p><strong>PEDIDO: N° {orderNumber}</strong></p>
+                <p>Período: {periodo}</p>
                 <p>{dataFormatada}</p>
                 <p>Cliente: {nome}</p>
             </div>

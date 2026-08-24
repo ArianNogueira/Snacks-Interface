@@ -12,6 +12,7 @@ import { toast } from 'react-toastify';
 
 import React from 'react';
 import { EditModal } from './editModal';
+import { OrderHistory } from './OrderHistory';
 
 interface Dish {
     id: number;
@@ -23,16 +24,10 @@ interface Dish {
     quantidade: number;
 }
 
-function notify(tipo: boolean): React.ReactNode {
-    return tipo === false
-        ? toast.error("Erro ao carregar os pratos!")
-        : toast.success("Pratos carregados com sucesso!")
-}
-
 export function Section() {
 
     const dispatch = useDispatch<AppDispatch>();
-    const { items = [] } = useSelector((state: RootState) => state.dishes);
+    const { items = [], loading, error } = useSelector((state: RootState) => state.dishes);
 
     useEffect(() => {
         dispatch(buscarDishes());
@@ -57,10 +52,11 @@ export function Section() {
     const orderItems = ["almoço/jantar", "lanches", "bebidas"];
 
     return (
-        <div> 
-            <div className='text-end'>
+        <section className="min-w-0">
+            <div className='flex flex-wrap justify-end gap-3'>
+                <OrderHistory />
                 <button
-                    className='bg-[#926e56] p-4 text-lg text-white rounded-full mt-5 hover:text-amber-950 duration-300 ease-in text'
+                    className='rounded-full bg-[#926e56] px-6 py-3 text-base text-white shadow-sm duration-300 hover:bg-[#765540] focus-visible:ring-2 focus-visible:ring-[#926e56] focus-visible:ring-offset-2 sm:text-lg'
                     onClick={handleOpenModal}
                 >
                     Adicionar
@@ -70,43 +66,53 @@ export function Section() {
             {modalOpen === "add" && <ModalDish closeModal={handleCloseModal} />}
             {modalOpen === "edit" && <EditModal closeModal={handleCloseModal} dish={selectedDish}/>}
 
-            <ul key={1} className='grid items-center justify-between grid-cols-1 gap-10 px-5 md:grid-cols-2 lg:grid-cols-3'>
-                {items && items.length > 0 ? (
+            <ul className='grid grid-cols-1 gap-5 py-5 sm:grid-cols-2 2xl:grid-cols-3'>
+                {loading ? (
+                    <li className="col-span-full rounded-lg bg-white p-6 text-center">Carregando pratos...</li>
+                ) : error ? (
+                    <li className="col-span-full rounded-lg border border-red-300 bg-red-50 p-6 text-center text-red-700">
+                        <p className="font-bold">Erro ao consultar o Supabase</p>
+                        <p className="mt-2 text-sm">{error}</p>
+                        <button type="button" onClick={() => dispatch(buscarDishes())} className="mt-4 rounded-full bg-red-700 px-5 py-2 text-white">
+                            Tentar novamente
+                        </button>
+                    </li>
+                ) : items.length > 0 ? (
                     items
                     .slice()
                     .sort((a, b) => orderItems.indexOf(a.categoria) - orderItems.indexOf(b.categoria))
                     .map((dishe: Dish) => (
-                        <li key={dishe.id} id={dishe.categoria} className='w-full p-3 mt-8 bg-white rounded-md'>
+                        <li key={dishe.id} id={dishe.categoria} className='flex min-w-0 scroll-mt-24 flex-col rounded-lg bg-white p-4 shadow-sm'>
                             <div className="flex flex-col items-center">
                                 <Image
                                     src={dishe.imagem}
                                     alt="Logo do prato"
                                     width={160}
                                     height={128}
-                                    className="w-40 h-32 duration-300 rounded-md hover:scale-110 hover:-rotate-2" />
+                                    className="h-40 w-full rounded-md object-cover duration-300 hover:scale-[1.03] sm:h-44" />
                             </div>
                             <div className="flex flex-col my-5 gap-y-2">
                                 <p className="text-lg font-bold">{dishe.nome}</p>
                                 {/* <p>{dishe.descricao}</p> */}
                                 <p>R$ {dishe.preco.toFixed(2)}</p>
                             </div>
-                            <div className="flex flex-col gap-y-3 items-center text-white w-full">
+                            <div className="mt-auto grid w-full grid-cols-2 gap-2 text-center text-sm text-white sm:text-base">
                                 <button
-                                    className="bg-[#926e56] hover:bg-[#d1c4ac] duration-300 px-5 py-1 rounded-full w-36"
+                                    className="col-span-2 rounded-full bg-[#926e56] px-4 py-2 duration-300 hover:bg-[#765540]"
                                     onClick={() => dispatch(addCart({ id: dishe.id, nome: dishe.nome, quantidade: 1, preco: dishe.preco, precoUnitario: dishe.preco }))}
                                 >
                                     Adicionar Item
                                 </button>
                                 
                                 <button
-                                    className="bg-yellow-400 hover:bg-[#d1c4ac] duration-300 px-5 py-1 rounded-full w-36"
+                                    className="rounded-full bg-yellow-500 px-4 py-2 duration-300 hover:bg-yellow-600"
                                     onClick={() => handleEditModal(dishe)}
                                     >
                                     Editar
                                 </button>
 
                                 <button
-                                    className="bg-red-500 hover:bg-[#d1c4ac] duration-300 px-5 py-1 rounded-full w-36"
+                                    className="rounded-full bg-red-500 px-4 py-2 duration-300 hover:bg-red-600"
                                     onClick={() => handleDeletarDish(dishe)}
                                     >
                                     Excluir
@@ -116,12 +122,11 @@ export function Section() {
                     ))
                     // notify(true)
                 ) : (
-                    <div>
-                        {/* {notify(false)} */}
+                    <li className="col-span-full rounded-lg bg-white p-6 text-center">
                         <p>Nenhum prato encontrado.</p>
-                    </div>
+                    </li>
                 )}
             </ul>
-        </div>
+        </section>
     )
 }

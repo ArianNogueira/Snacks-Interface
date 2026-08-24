@@ -12,6 +12,8 @@ interface Dish {
 
 interface DishesState {
     items: Dish[];
+    loading: boolean;
+    error: string | null;
 }
 
 export const adicionarDish = createAsyncThunk(
@@ -44,6 +46,8 @@ const dishesSlice = createSlice({
     name: 'dishes',
     initialState: { 
         items: [],
+        loading: false,
+        error: null,
     } as DishesState,
     reducers: {
         // adiconarDishes: (state: DishesState, action: AddDishAction) => {
@@ -51,8 +55,17 @@ const dishesSlice = createSlice({
         // }
     },
     extraReducers: buider => {
-        buider.addCase(buscarDishes.fulfilled, (state, action) => {
+        buider.addCase(buscarDishes.pending, (state) => {
+            state.loading = true;
+            state.error = null;
+        })
+        .addCase(buscarDishes.fulfilled, (state, action) => {
             state.items = action.payload;
+            state.loading = false;
+        })
+        .addCase(buscarDishes.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.error.message ?? "Não foi possível consultar os pratos no Supabase.";
         })
         .addCase(adicionarDish.fulfilled, (state, action) => {
             state.items.push(action.payload);
@@ -62,8 +75,7 @@ const dishesSlice = createSlice({
             state.items[index] = action.payload;
         })
         .addCase(deletarDish.fulfilled, (state, action) => {
-            const index = state.items.findIndex(dishesSlice => dishesSlice.id === action.payload.id)
-            state.items[index] = action.payload;
+            state.items = state.items.filter((dish) => dish.id !== action.payload.id);
         }) 
     }
 });

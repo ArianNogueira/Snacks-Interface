@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently \"npm run next\" \"npm run json-server\"",
-    "next": "next dev",
-    "json-server": "npx json-server --watch db.json --port 3001",
+    "dev": "next dev",
+    "migrate:supabase": "node --env-file=.env scripts/migrate-db-to-supabase.mjs",
+    "migrate:storage": "node --env-file=.env scripts/migrate-images-to-storage.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -13,6 +13,7 @@
   "dependencies": {
     "@chakra-ui/toast": "^7.0.2",
     "@reduxjs/toolkit": "^2.5.1",
+    "@supabase/supabase-js": "^2.112.4",
     "lucide-react": "^0.475.0",
     "my-app": "file:",
     "next": "15.1.6",
@@ -27,7 +28,6 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "concurrently": "^9.1.2",
     "eslint": "^9",
     "eslint-config-next": "15.1.6",
     "postcss": "^8",

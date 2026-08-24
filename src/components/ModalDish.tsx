@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '@/store/reduceres/store';
 import { adicionarDish } from "@/store/reduceres/dishesSlice";
+import { ImagesService } from "@/services/images";
 
 import { toast } from 'react-toastify';
 
@@ -27,20 +28,16 @@ const bebidas = ["bebida", "bebids", "bebdas"]
 export function ModalDish({ closeModal }: ModalClose) {
     const dispatch = useDispatch<AppDispatch>();
     const [infoDish, setInfoDish] = useState({} as Infos);
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [saving, setSaving] = useState(false);
 
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if(file) {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onloadend = () => {
-                setInfoDish({ ...infoDish, imagem: reader.result as string });
-            };
-        }
+        setImageFile(file ?? null);
     };
 
-    const handleAddDish = () => {
-        if(!infoDish.nome || !infoDish.categoria || !infoDish.preco || !infoDish.imagem) {
+    const handleAddDish = async () => {
+        if(!infoDish.nome || !infoDish.categoria || !infoDish.preco || !imageFile) {
             toast.error("Preencha todos os campos!")
             return;
         }
@@ -56,14 +53,22 @@ export function ModalDish({ closeModal }: ModalClose) {
             return
         }
 
-        dispatch(adicionarDish(infoDish));
-        toast.success("Prato adicionado com sucesso!")
-        closeModal();
+        setSaving(true);
+        try {
+            const imageUrl = await ImagesService.upload(imageFile);
+            await dispatch(adicionarDish({ ...infoDish, imagem: imageUrl })).unwrap();
+            toast.success("Prato adicionado com sucesso!");
+            closeModal();
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : "Não foi possível adicionar o prato.");
+        } finally {
+            setSaving(false);
+        }
     }
 
     return (
-        <div className="flex flex-col items-center justify-center fixed top-0 left-0 w-full h-full z-50 bg-black bg-opacity-50" onClick={closeModal}>
-            <div className="max-w-96 bg-white p-6 rounded-lg shadow-lg" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/50 p-4" onClick={closeModal}>
+            <div className="my-auto w-full max-w-96 rounded-lg bg-white p-4 shadow-lg sm:p-6" onClick={(e) => e.stopPropagation()}>
                 <h2 className="text-center text-[20px] font-medium">Preencha os dados para adicionar um novo prato</h2>
                 <input
                     className="w-full p-2 my-3 rounded-md placeholder:text-zinc-500 border border-gray-300"
@@ -90,6 +95,7 @@ export function ModalDish({ closeModal }: ModalClose) {
                     className="w-full p-2 my-3 rounded-md placeholder:text-zinc-500 border border-gray-300" 
                     required
                     type="file"
+                    accept="image/jpeg,image/png,image/webp"
                     onChange={handleImageUpload} 
                 />
                 {/* <input
@@ -106,12 +112,13 @@ export function ModalDish({ closeModal }: ModalClose) {
                         }
                     }
                 /> */}
-                <div className="flex justify-between ">
+                <div className="flex flex-wrap justify-between gap-3">
                     <button
                         className='bg-[#926e56] px-4 py-2 text-lg text-white rounded-full mt-5 hover:text-amber-950 duration-300 ease-in text'
                         onClick={handleAddDish}
+                        disabled={saving}
                     >
-                        Adicionar
+                        {saving ? "Salvando..." : "Adicionar"}
                     </button>
                     <button
                         className="bg-red-800 px-4 py-2 text-lg text-white rounded-full mt-5 hover:text-amber-950 duration-300 ease-in text"

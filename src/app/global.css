@@ -13,7 +13,7 @@ html {
 
 html, body {
     min-height: 100vh;
-    width: 100vw;
+    width: 100%;
 }
 
 body {
@@ -24,7 +24,7 @@ body {
     padding-bottom: 24px;
 }
 
-header {
+.hero-header {
     background-image: url('../../public/assets/bg.jpg');
 }
 
@@ -38,6 +38,10 @@ header {
     }
 }
 
-main.flex {
-    align-items: stretch;
+button, input, textarea {
+    font: inherit;
+}
+
+button, a, label {
+    -webkit-tap-highlight-color: transparent;
 }
