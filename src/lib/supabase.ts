@@ -3,8 +3,13 @@ import { createClient } from "@supabase/supabase-js";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
+console.log("SUPABASE URL CONFIGURADA:", !!supabaseUrl);
+console.log("SUPABASE KEY CONFIGURADA:", !!supabaseAnonKey);
+
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error("Configure NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY no arquivo .env");
+  throw new Error(
+    "Configure NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY no arquivo .env"
+  );
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
