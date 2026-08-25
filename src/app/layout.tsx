@@ -3,6 +3,7 @@
 import "@/app/global.css";
 import { Provider } from 'react-redux';
 import  { store }  from "../store/reduceres/store";
+import { AuthProvider } from "@/contexts/AuthContext";
  
 export default function RootLayout({
   children,
@@ -10,12 +11,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <Provider store={store}>
-      <html lang="pt-br">
-        <body>
+    <html lang="pt-br">
+      <body>
+        <Provider store={store}>
+          <AuthProvider>
           {children}
-        </body>
-      </html>
-    </Provider>
+          </AuthProvider>
+        </Provider>
+      </body>
+    </html>
   );
 }

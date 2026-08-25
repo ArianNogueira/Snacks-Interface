@@ -13,6 +13,7 @@ import { toast } from 'react-toastify';
 import React from 'react';
 import { EditModal } from './editModal';
 import { OrderHistory } from './OrderHistory';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Dish {
     id: number;
@@ -28,6 +29,10 @@ export function Section() {
 
     const dispatch = useDispatch<AppDispatch>();
     const { items = [], loading, error } = useSelector((state: RootState) => state.dishes);
+    const { role, loading: authLoading } = useAuth();
+    const isAdmin = !authLoading && role === "administrador";
+    const canManageMenu = !authLoading && (role === "administrador" || role === "funcionario");
+    const canManageOrders = !authLoading && (role === "administrador" || role === "funcionario");
 
     useEffect(() => {
         dispatch(buscarDishes());
@@ -54,13 +59,13 @@ export function Section() {
     return (
         <section className="min-w-0">
             <div className='flex flex-wrap justify-end gap-3'>
-                <OrderHistory />
-                <button
+                {canManageOrders && <OrderHistory />}
+                {canManageMenu && <button
                     className='rounded-full bg-[#926e56] px-6 py-3 text-base text-white shadow-sm duration-300 hover:bg-[#765540] focus-visible:ring-2 focus-visible:ring-[#926e56] focus-visible:ring-offset-2 sm:text-lg'
                     onClick={handleOpenModal}
                 >
                     Adicionar
-                </button>
+                </button>}
             </div>
 
             {modalOpen === "add" && <ModalDish closeModal={handleCloseModal} />}
@@ -97,26 +102,26 @@ export function Section() {
                                 <p>R$ {dishe.preco.toFixed(2)}</p>
                             </div>
                             <div className="mt-auto grid w-full grid-cols-2 gap-2 text-center text-sm text-white sm:text-base">
-                                <button
+                                {canManageOrders && <button
                                     className="col-span-2 rounded-full bg-[#926e56] px-4 py-2 duration-300 hover:bg-[#765540]"
                                     onClick={() => dispatch(addCart({ id: dishe.id, nome: dishe.nome, quantidade: 1, preco: dishe.preco, precoUnitario: dishe.preco }))}
                                 >
                                     Adicionar Item
-                                </button>
+                                </button>}
                                 
-                                <button
+                                {canManageMenu && <button
                                     className="rounded-full bg-yellow-500 px-4 py-2 duration-300 hover:bg-yellow-600"
                                     onClick={() => handleEditModal(dishe)}
                                     >
                                     Editar
-                                </button>
+                                </button>}
 
-                                <button
+                                {isAdmin && <button
                                     className="rounded-full bg-red-500 px-4 py-2 duration-300 hover:bg-red-600"
                                     onClick={() => handleDeletarDish(dishe)}
                                     >
                                     Excluir
-                                </button>
+                                </button>}
                             </div>
                         </li>
                     ))

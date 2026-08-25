@@ -9,6 +9,7 @@ import { Form } from "./Form";
 
 import { toast } from 'react-toastify';
 import OrdersService, { getOrderPeriod } from "@/services/orders";
+import { useAuth } from "@/contexts/AuthContext";
 
 function printTicket(html: string) {
     const iframe = document.createElement("iframe");
@@ -60,6 +61,8 @@ function printTicket(html: string) {
 export function Aside() {
 
     const dispatch = useDispatch<AppDispatch>();
+    const { role } = useAuth();
+    const canManageOrders = role === "administrador" || role === "funcionario";
     const { items = [] } = useSelector((state: RootState) => state.cart);
     const [metodoPagamento, setMetodoPagamento] = useState<string>('');
     const [nomeCliente, setNomeCliente] = useState<string>('');
@@ -81,6 +84,11 @@ export function Aside() {
     // const savedItem = JSON.parse(localStorage.getItem("dishCart") || "[]");
 
     const handlePrint = async () => {
+
+        if (!canManageOrders) {
+            notify("Você não tem permissão para registrar ou imprimir pedidos.");
+            return;
+        }
 
         if (!nomeCliente) {
             notify("Informe o nome do cliente!");
@@ -136,6 +144,8 @@ export function Aside() {
         }
     };
     
+    if (!canManageOrders) return null;
+
     return (
         <aside className="w-full min-w-0 rounded-lg bg-[#f5f5f5] px-4 py-5 shadow-sm sm:px-6 lg:col-start-2 xl:sticky xl:top-5 xl:col-start-auto xl:px-7 xl:py-6">
             {items && items.length > 0 ? (
