@@ -18,7 +18,10 @@ interface Data {
     preco: number,
     quantidade: number,
     categoria: string,
-    imagem: string
+    imagem: string,
+    availableToday: boolean,
+    averageRating: number,
+    reviewCount: number
 }
 
 export function EditModal({ closeModal, dish}: ModalClose) {
@@ -29,7 +32,10 @@ export function EditModal({ closeModal, dish}: ModalClose) {
         preco: 0,
         quantidade: 0,
         categoria: "",
-        imagem: ""
+        imagem: "",
+        availableToday: true,
+        averageRating: 0,
+        reviewCount: 0
     });
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [saving, setSaving] = useState(false);

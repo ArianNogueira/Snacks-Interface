@@ -7,7 +7,10 @@ interface Dish {
     preco: number,
     quantidade: number,
     categoria: string,
-    imagem: string
+    imagem: string,
+    availableToday: boolean,
+    averageRating: number,
+    reviewCount: number
 }
 
 interface DishesState {
@@ -40,6 +43,13 @@ export const deletarDish = createAsyncThunk (
 export const buscarDishes = createAsyncThunk(
     'dishes/buscar',
     DishesService.buscar
+)
+
+export const definirDisponibilidade = createAsyncThunk(
+    'dishes/definirDisponibilidade',
+    async ({ dishId, available }: { dishId: number; available: boolean }) => {
+        return await DishesService.definirDisponibilidade(dishId, available);
+    }
 )
 
 const dishesSlice = createSlice({
@@ -76,7 +86,11 @@ const dishesSlice = createSlice({
         })
         .addCase(deletarDish.fulfilled, (state, action) => {
             state.items = state.items.filter((dish) => dish.id !== action.payload.id);
-        }) 
+        })
+        .addCase(definirDisponibilidade.fulfilled, (state, action) => {
+            const dish = state.items.find((item) => item.id === action.payload.dishId);
+            if (dish) dish.availableToday = action.payload.available;
+        })
     }
 });
 

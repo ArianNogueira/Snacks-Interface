@@ -14,7 +14,10 @@ interface Infos {
     preco: number,
     imagem: string,
     id: 16,
-    quantidade: 1
+    quantidade: 1,
+    availableToday: boolean,
+    averageRating: number,
+    reviewCount: number
 }
 
 interface ModalClose {
@@ -56,7 +59,7 @@ export function ModalDish({ closeModal }: ModalClose) {
         setSaving(true);
         try {
             const imageUrl = await ImagesService.upload(imageFile);
-            await dispatch(adicionarDish({ ...infoDish, imagem: imageUrl })).unwrap();
+            await dispatch(adicionarDish({ ...infoDish, imagem: imageUrl, availableToday: true, averageRating: 0, reviewCount: 0 })).unwrap();
             toast.success("Prato adicionado com sucesso!");
             closeModal();
         } catch (error) {
