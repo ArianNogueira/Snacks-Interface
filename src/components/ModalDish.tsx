@@ -12,6 +12,8 @@ interface Infos {
     nome: string,
     categoria: string,
     preco: number,
+    em_promocao: boolean,
+    preco_promocional: number | null,
     imagem: string,
     id: 16,
     quantidade: 1,
@@ -30,7 +32,10 @@ const bebidas = ["bebida", "bebids", "bebdas"]
 
 export function ModalDish({ closeModal }: ModalClose) {
     const dispatch = useDispatch<AppDispatch>();
-    const [infoDish, setInfoDish] = useState({} as Infos);
+    const [infoDish, setInfoDish] = useState<Infos>({
+        nome: "", categoria: "", preco: 0, em_promocao: false, preco_promocional: null,
+        imagem: "", id: 16, quantidade: 1, availableToday: true, averageRating: 0, reviewCount: 0,
+    });
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [saving, setSaving] = useState(false);
 
@@ -67,6 +72,11 @@ export function ModalDish({ closeModal }: ModalClose) {
         } finally {
             setSaving(false);
         }
+
+        if (infoDish.em_promocao && (!infoDish.preco_promocional || infoDish.preco_promocional >= infoDish.preco)) {
+            toast.error("O valor promocional deve ser maior que zero e menor que o valor normal.");
+            return;
+        }
     }
 
     return (
@@ -94,6 +104,16 @@ export function ModalDish({ closeModal }: ModalClose) {
                     placeholder="R$ 0,00"
                     onChange={(e) => setInfoDish({ ...infoDish, preco: Number(e.target.value)})}
                 />
+                <label className="my-3 flex items-center gap-2 text-sm font-medium text-zinc-700">
+                    <input type="checkbox" checked={infoDish.em_promocao} onChange={(e) => setInfoDish({ ...infoDish, em_promocao: e.target.checked, preco_promocional: e.target.checked ? infoDish.preco_promocional : null })} />
+                    Prato em promoção
+                </label>
+                {infoDish.em_promocao && <input
+                    className="my-3 w-full rounded-md border border-gray-300 p-2 placeholder:text-zinc-500"
+                    required min="0.01" step="0.01" type="number" placeholder="Valor promocional"
+                    value={infoDish.preco_promocional ?? ""}
+                    onChange={(e) => setInfoDish({ ...infoDish, preco_promocional: e.target.value === "" ? null : Number(e.target.value) })}
+                />}
                 <input
                     className="w-full p-2 my-3 rounded-md placeholder:text-zinc-500 border border-gray-300" 
                     required

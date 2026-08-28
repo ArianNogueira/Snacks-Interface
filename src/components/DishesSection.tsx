@@ -25,6 +25,8 @@ interface Dish {
     descricao?: string;
     imagem: string;
     preco: number;
+    em_promocao: boolean;
+    preco_promocional: number | null;
     quantidade: number;
     availableToday: boolean;
     averageRating: number;
@@ -126,18 +128,25 @@ export function Section() {
                                     height={128}
                                     className={`h-40 w-full rounded-md object-cover duration-300 sm:h-44 ${dishe.availableToday ? "hover:scale-[1.03]" : "opacity-50 grayscale"}`} />
                                 {!dishe.availableToday && <span className="absolute inset-x-3 top-1/2 -translate-y-1/2 rounded-full bg-zinc-900/85 px-3 py-2 text-center text-sm font-bold uppercase tracking-wide text-white">Indisponível hoje</span>}
+                                {dishe.em_promocao && dishe.preco_promocional !== null && <span className="absolute left-2 top-2 rounded-full bg-red-600 px-3 py-1 text-xs font-bold uppercase tracking-wide text-white shadow">Promoção</span>}
                             </div>
                             <div className="flex flex-col my-5 gap-y-2">
                                 <p className="text-lg font-bold">{dishe.nome}</p>
                                 {/* <p>{dishe.descricao}</p> */}
-                                <p>R$ {dishe.preco.toFixed(2)}</p>
+                                {dishe.em_promocao && dishe.preco_promocional !== null ? <div className="flex flex-wrap items-baseline gap-2">
+                                    <span className="text-sm text-zinc-500 line-through">R$ {dishe.preco.toFixed(2)}</span>
+                                    <strong className="text-xl text-red-600">R$ {dishe.preco_promocional.toFixed(2)}</strong>
+                                </div> : <p>R$ {dishe.preco.toFixed(2)}</p>}
                                 {dishe.reviewCount > 0 && <div className="flex items-center gap-1.5 text-sm text-zinc-600"><Star size={17} className="fill-amber-400 text-amber-400" /><strong className="text-zinc-800">{dishe.averageRating.toFixed(1)}</strong><span>({dishe.reviewCount} avaliação{dishe.reviewCount === 1 ? "" : "ões"})</span></div>}
                             </div>
                             <div className="mt-auto grid w-full grid-cols-2 gap-2 text-center text-sm text-white sm:text-base">
                                 <CustomerReview dishId={dishe.id} dishName={dishe.nome} canReview={!authLoading && !canManageMenu} onReviewSubmitted={() => { void dispatch(buscarDishes()); }} />
                                 {canManageOrders && dishe.availableToday && <button
                                     className="col-span-2 rounded-full bg-[#926e56] px-4 py-2 duration-300 hover:bg-[#765540]"
-                                    onClick={() => dispatch(addCart({ id: dishe.id, nome: dishe.nome, quantidade: 1, preco: dishe.preco, precoUnitario: dishe.preco }))}
+                                    onClick={() => {
+                                        const price = dishe.em_promocao && dishe.preco_promocional !== null ? dishe.preco_promocional : dishe.preco;
+                                        dispatch(addCart({ id: dishe.id, nome: dishe.nome, quantidade: 1, preco: price, precoUnitario: price }));
+                                    }}
                                 >
                                     Adicionar Item
                                 </button>}

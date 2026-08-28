@@ -5,6 +5,8 @@ export interface Dish {
   id: number;
   nome: string;
   preco: number;
+  em_promocao: boolean;
+  preco_promocional: number | null;
   quantidade: number;
   categoria: string;
   imagem: string;
@@ -27,6 +29,8 @@ function normalizeDish(row: Record<string, unknown>, availableToday = true, aver
     id: Number(row.id),
     nome: String(row.nome),
     preco: Number(row.preco),
+    em_promocao: Boolean(row.em_promocao),
+    preco_promocional: row.preco_promocional == null ? null : Number(row.preco_promocional),
     quantidade: Number(row.quantidade ?? 1),
     categoria: String(row.categoria),
     imagem: String(row.imagem),

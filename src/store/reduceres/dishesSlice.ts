@@ -5,6 +5,8 @@ interface Dish {
     id: number,
     nome: string,
     preco: number,
+    em_promocao: boolean,
+    preco_promocional: number | null,
     quantidade: number,
     categoria: string,
     imagem: string,

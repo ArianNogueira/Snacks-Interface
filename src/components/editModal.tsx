@@ -16,6 +16,8 @@ interface Data {
     id: number,
     nome: string,
     preco: number,
+    em_promocao: boolean,
+    preco_promocional: number | null,
     quantidade: number,
     categoria: string,
     imagem: string,
@@ -30,6 +32,8 @@ export function EditModal({ closeModal, dish}: ModalClose) {
         id: 0,
         nome: "",
         preco: 0,
+        em_promocao: false,
+        preco_promocional: null,
         quantidade: 0,
         categoria: "",
         imagem: "",
@@ -41,6 +45,14 @@ export function EditModal({ closeModal, dish}: ModalClose) {
     const [saving, setSaving] = useState(false);
 
     const handleEditDish = async () => {
+        if (!dataDish.nome.trim() || dataDish.preco <= 0) {
+            toast.error("Informe um nome e um valor normal maior que zero.");
+            return;
+        }
+        if (dataDish.em_promocao && (!dataDish.preco_promocional || dataDish.preco_promocional >= dataDish.preco)) {
+            toast.error("O valor promocional deve ser maior que zero e menor que o valor normal.");
+            return;
+        }
         setSaving(true);
         try {
             const oldImage = dataDish.imagem;
@@ -76,6 +88,16 @@ export function EditModal({ closeModal, dish}: ModalClose) {
                     value={dataDish?.preco}
                     onChange={(e) => setDataDish({ ...dataDish, preco: Number(e.target.value) })}
                 />
+                <label className="my-3 flex items-center gap-2 text-sm font-medium text-zinc-700">
+                    <input type="checkbox" checked={dataDish.em_promocao} onChange={(e) => setDataDish({ ...dataDish, em_promocao: e.target.checked, preco_promocional: e.target.checked ? dataDish.preco_promocional : null })} />
+                    Prato em promoção
+                </label>
+                {dataDish.em_promocao && <input
+                    className="my-3 w-full rounded-md border border-gray-300 p-2 placeholder:text-zinc-500"
+                    required min="0.01" step="0.01" type="number" placeholder="Valor promocional"
+                    value={dataDish.preco_promocional ?? ""}
+                    onChange={(e) => setDataDish({ ...dataDish, preco_promocional: e.target.value === "" ? null : Number(e.target.value) })}
+                />}
                 <label className="block text-sm font-medium text-zinc-700">Substituir imagem (opcional)</label>
                 <input
                     className="w-full p-2 my-3 rounded-md border border-gray-300"
