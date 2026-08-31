@@ -9,17 +9,22 @@ export interface OrderItem {
 }
 
 export type OrderPeriod = "09:00-14:59" | "18:00-23:59";
+export type OrderStatus = "recebido" | "confirmado" | "preparando" | "saiu_entrega" | "entregue" | "cancelado";
 
 export interface Order {
   id?: number | string;
   nomeCliente: string;
   metodoPagamento: string;
   observacao?: string;
+  enderecoEntrega?: string;
   items: OrderItem[];
   total: number;
   created_at: string;
   numeroPedido?: number;
   periodo?: OrderPeriod;
+  status?: OrderStatus;
+  trackingToken?: string;
+  statusUpdatedAt?: string;
 }
 
 interface OrderItemRow {
@@ -35,10 +40,14 @@ interface OrderRow {
   nome_cliente: string;
   metodo_pagamento: string;
   observacao: string | null;
+  endereco_entrega: string | null;
   total: number | string;
   created_at: string;
   numero_pedido: number;
   periodo: OrderPeriod;
+  status?: OrderStatus;
+  tracking_token?: string;
+  status_updated_at?: string;
   order_items?: OrderItemRow[];
 }
 
@@ -62,10 +71,14 @@ function normalizeOrder(row: OrderRow): Order {
     nomeCliente: row.nome_cliente,
     metodoPagamento: row.metodo_pagamento,
     observacao: row.observacao ?? "",
+    enderecoEntrega: row.endereco_entrega ?? "",
     total: Number(row.total),
     created_at: row.created_at,
     numeroPedido: row.numero_pedido,
     periodo: row.periodo,
+    status: row.status,
+    trackingToken: row.tracking_token,
+    statusUpdatedAt: row.status_updated_at,
     items: (row.order_items ?? []).map((item) => ({
       dishId: Number(item.dish_id),
       nome: item.nome,
@@ -87,46 +100,26 @@ const OrdersService = {
   },
 
   adicionar: async (order: Order): Promise<Order> => {
-    if (!order.periodo) throw new Error("Período do pedido não informado.");
+    const { data, error } = await supabase.rpc("submit_order", {
+      p_nome_cliente: order.nomeCliente,
+      p_metodo_pagamento: order.metodoPagamento,
+      p_observacao: order.observacao ?? "",
+      p_endereco_entrega: order.enderecoEntrega ?? "",
+      p_items: order.items.map((item) => ({ dish_id: item.dishId, quantidade: item.quantidade })),
+    });
+    if (error) throw new Error(`Erro ao enviar pedido: ${error.message}`);
+    return normalizeOrder(data as OrderRow);
+  },
 
-    const { data: insertedOrder, error: orderError } = await supabase
-      .from("orders")
-      .insert({
-        nome_cliente: order.nomeCliente,
-        metodo_pagamento: order.metodoPagamento,
-        observacao: order.observacao ?? "",
-        total: order.total,
-        created_at: order.created_at,
-        periodo: order.periodo,
-      })
-      .select()
-      .single();
+  acompanhar: async (token: string): Promise<Order | null> => {
+    const { data, error } = await supabase.rpc("track_order", { p_tracking_token: token });
+    if (error) throw new Error(`Erro ao acompanhar pedido: ${error.message}`);
+    return data ? normalizeOrder(data as OrderRow) : null;
+  },
 
-    if (orderError) throw new Error(`Erro ao salvar pedido: ${orderError.message}`);
-
-    const { error: itemsError } = await supabase.from("order_items").insert(
-      order.items.map((item) => ({
-        order_id: insertedOrder.id,
-        dish_id: item.dishId,
-        nome: item.nome,
-        preco_unitario: item.precoUnitario,
-        quantidade: item.quantidade,
-        total: item.total,
-      }))
-    );
-
-    if (itemsError) {
-      await supabase.from("orders").delete().eq("id", insertedOrder.id);
-      throw new Error(`Erro ao salvar itens do pedido: ${itemsError.message}`);
-    }
-
-    return normalizeOrder({ ...insertedOrder, order_items: order.items.map((item) => ({
-      dish_id: item.dishId,
-      nome: item.nome,
-      preco_unitario: item.precoUnitario,
-      quantidade: item.quantidade,
-      total: item.total,
-    })) } as OrderRow);
+  atualizarStatus: async (orderId: number | string, status: OrderStatus): Promise<void> => {
+    const { error } = await supabase.rpc("update_order_status", { p_order_id: Number(orderId), p_status: status });
+    if (error) throw new Error(`Erro ao atualizar status: ${error.message}`);
   },
 };
 

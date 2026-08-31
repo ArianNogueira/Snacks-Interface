@@ -141,14 +141,14 @@ export function Section() {
                             </div>
                             <div className="mt-auto grid w-full grid-cols-2 gap-2 text-center text-sm text-white sm:text-base">
                                 <CustomerReview dishId={dishe.id} dishName={dishe.nome} canReview={!authLoading && !canManageMenu} onReviewSubmitted={() => { void dispatch(buscarDishes()); }} />
-                                {canManageOrders && dishe.availableToday && <button
+                                {dishe.availableToday && <button
                                     className="col-span-2 rounded-full bg-[#926e56] px-4 py-2 duration-300 hover:bg-[#765540]"
                                     onClick={() => {
                                         const price = dishe.em_promocao && dishe.preco_promocional !== null ? dishe.preco_promocional : dishe.preco;
                                         dispatch(addCart({ id: dishe.id, nome: dishe.nome, quantidade: 1, preco: price, precoUnitario: price }));
                                     }}
                                 >
-                                    Adicionar Item
+                                    Adicionar ao pedido
                                 </button>}
 
                                 {canManageMenu && <button

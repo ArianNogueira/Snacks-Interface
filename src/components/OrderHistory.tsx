@@ -1,9 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Download, History, X } from "lucide-react";
+import { Download, History, Printer, X } from "lucide-react";
 import OrdersService, { Order } from "@/services/orders";
 import { toast } from "react-toastify";
+import { supabase } from "@/lib/supabase";
+import ReactDOMServer from "react-dom/server";
+import { BrintableTicket } from "./BrintableTicket";
+import { printTicket } from "./Cart";
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("pt-BR", {
@@ -23,6 +27,7 @@ function exportToExcel(orders: Order[]) {
     "Número do pedido",
     "Cliente",
     "Pagamento",
+    "Endereço de entrega",
     "Item",
     "Quantidade",
     "Preço unitário",
@@ -38,6 +43,7 @@ function exportToExcel(orders: Order[]) {
       order.numeroPedido ?? "",
       order.nomeCliente,
       order.metodoPagamento,
+      order.enderecoEntrega ?? "",
       item.nome,
       item.quantidade,
       item.precoUnitario.toFixed(2).replace(".", ","),
@@ -73,6 +79,26 @@ export function OrderHistory() {
       .catch(() => toast.error("Não foi possível carregar o histórico de pedidos."))
       .finally(() => setLoading(false));
   }, [open]);
+
+  useEffect(() => {
+    const channel = supabase.channel("online-orders-inbox")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "orders" }, () => {
+        if (!open) {
+          toast.info("Novo pedido online recebido! Abra o histórico para imprimir.");
+          return;
+        }
+        window.setTimeout(() => {
+          void OrdersService.buscar().then(setOrders).catch(() => undefined);
+        }, 300);
+      }).subscribe();
+    return () => { void supabase.removeChannel(channel); };
+  }, [open]);
+
+  function printOrder(order: Order) {
+    const items = order.items.map((item) => ({ id: item.dishId, nome: item.nome, preco: item.total, precoUnitario: item.precoUnitario, quantidade: item.quantidade }));
+    const html = ReactDOMServer.renderToStaticMarkup(BrintableTicket(items, order.metodoPagamento, order.total, order.nomeCliente, order.observacao ?? "", order.numeroPedido!, order.periodo ?? "", order.created_at));
+    printTicket(html);
+  }
 
   return (
     <>
@@ -123,8 +149,10 @@ export function OrderHistory() {
                       <th className="p-3">Nº</th>
                       <th className="p-3">Cliente</th>
                       <th className="p-3">Pagamento</th>
+                      <th className="p-3">Entrega</th>
                       <th className="p-3">Itens</th>
                       <th className="p-3 text-right">Total</th>
+                      <th className="p-3 text-center">Imprimir</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -135,8 +163,10 @@ export function OrderHistory() {
                         <td className="p-3 font-bold">{order.numeroPedido ?? "—"}</td>
                         <td className="p-3">{order.nomeCliente}</td>
                         <td className="p-3">{order.metodoPagamento}</td>
+                        <td className="max-w-56 whitespace-pre-line p-3">{order.enderecoEntrega || "Retirada/balcão"}</td>
                         <td className="p-3">{order.items.map((item) => `${item.quantidade}× ${item.nome}`).join(", ")}</td>
                         <td className="whitespace-nowrap p-3 text-right font-bold">R$ {order.total.toFixed(2)}</td>
+                        <td className="p-3 text-center"><button type="button" aria-label={`Imprimir pedido ${order.numeroPedido}`} onClick={() => printOrder(order)} className="rounded-md p-2 text-[#382110] hover:bg-zinc-200"><Printer size={19} /></button></td>
                       </tr>
                     ))}
                   </tbody>

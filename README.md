@@ -1,5 +1,12 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Pedidos online
+
+Antes de publicar o fluxo de pedidos online, aplique no projeto Supabase a migração
+`supabase/migrations/20260831_online_orders.sql`. Ela cria a função segura usada pelo
+site para recalcular preços, salvar pedido e itens na mesma transação e avisar a
+equipe em tempo real.
+
 ## Getting Started
 
 First, run the development server:

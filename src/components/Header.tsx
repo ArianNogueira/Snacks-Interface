@@ -1,7 +1,7 @@
 'use client'
 import Image from 'next/image';
 import Link from 'next/link';
-import { BarChart3, LoaderCircle, LogIn, LogOut, MessageSquareText, UserPlus } from 'lucide-react';
+import { BarChart3, ClipboardList, LoaderCircle, LogIn, LogOut, MessageSquareText, UserPlus } from 'lucide-react';
 import logo from '../../public/assets/Logo.png';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -11,6 +11,7 @@ export function Header() {
     return (
         <header className="hero-header relative h-64 w-full bg-zinc-900 bg-cover bg-center sm:h-80 lg:h-[420px]">
                 <div className="absolute right-4 top-4 z-10 flex items-center gap-2 sm:right-6 sm:top-6">
+                    {(role === "administrador" || role === "funcionario") && <Link href="/pedidos" className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-black/40 px-4 py-2 text-sm font-semibold text-white backdrop-blur transition hover:bg-black/60"><ClipboardList size={18} /><span className="hidden sm:inline">Pedidos</span></Link>}
                     {role === "administrador" && <Link href="/admin/avaliacoes" aria-label="Avaliações" className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-black/40 px-4 py-2 text-sm font-semibold text-white backdrop-blur transition hover:bg-black/60"><MessageSquareText size={18} /><span className="hidden xl:inline">Avaliações</span></Link>}
                     {role === "administrador" && <Link href="/admin/funcionarios" className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-black/40 px-4 py-2 text-sm font-semibold text-white backdrop-blur transition hover:bg-black/60"><UserPlus size={18} /><span className="hidden lg:inline">Funcionários</span></Link>}
                     {role === "administrador" && <Link href="/estatisticas" className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-black/40 px-4 py-2 text-sm font-semibold text-white backdrop-blur transition hover:bg-black/60"><BarChart3 size={18} /><span className="hidden sm:inline">Faturamento</span></Link>}
