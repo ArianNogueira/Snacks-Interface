@@ -10,6 +10,7 @@ export interface OrderItem {
 
 export type OrderPeriod = "09:00-14:59" | "18:00-23:59";
 export type OrderStatus = "recebido" | "confirmado" | "preparando" | "saiu_entrega" | "entregue" | "cancelado";
+export type DeliveryType = "retirada" | "delivery";
 
 export interface Order {
   id?: number | string;
@@ -25,6 +26,9 @@ export interface Order {
   status?: OrderStatus;
   trackingToken?: string;
   statusUpdatedAt?: string;
+  deliveryType?: DeliveryType;
+  deliveryDistanceKm?: number;
+  deliveryFee?: number;
 }
 
 interface OrderItemRow {
@@ -48,6 +52,9 @@ interface OrderRow {
   status?: OrderStatus;
   tracking_token?: string;
   status_updated_at?: string;
+  delivery_type?: DeliveryType;
+  delivery_distance_km?: number | string | null;
+  delivery_fee?: number | string;
   order_items?: OrderItemRow[];
 }
 
@@ -79,6 +86,9 @@ function normalizeOrder(row: OrderRow): Order {
     status: row.status,
     trackingToken: row.tracking_token,
     statusUpdatedAt: row.status_updated_at,
+    deliveryType: row.delivery_type ?? (row.endereco_entrega ? "delivery" : "retirada"),
+    deliveryDistanceKm: row.delivery_distance_km == null ? undefined : Number(row.delivery_distance_km),
+    deliveryFee: Number(row.delivery_fee ?? 0),
     items: (row.order_items ?? []).map((item) => ({
       dishId: Number(item.dish_id),
       nome: item.nome,
@@ -100,12 +110,17 @@ const OrdersService = {
   },
 
   adicionar: async (order: Order): Promise<Order> => {
-    const { data, error } = await supabase.rpc("submit_order", {
+    const { data, error } = await supabase.rpc("submit_order_with_delivery", {
       p_nome_cliente: order.nomeCliente,
       p_metodo_pagamento: order.metodoPagamento,
       p_observacao: order.observacao ?? "",
       p_endereco_entrega: order.enderecoEntrega ?? "",
       p_items: order.items.map((item) => ({ dish_id: item.dishId, quantidade: item.quantidade })),
+      p_delivery_type: order.deliveryType ?? "retirada",
+      // Compatibilidade com a versão da função ainda instalada no Supabase,
+      // que exige uma distância. A interface não calcula nem exibe quilômetros;
+      // 4 km apenas seleciona a faixa fixa de R$ 10,00 da função legada.
+      p_delivery_distance_km: order.deliveryType === "delivery" ? 4 : null,
     });
     if (error) throw new Error(`Erro ao enviar pedido: ${error.message}`);
     return normalizeOrder(data as OrderRow);

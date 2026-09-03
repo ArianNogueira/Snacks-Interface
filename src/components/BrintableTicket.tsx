@@ -22,50 +22,52 @@ export function BrintableTicket(items: Dish[], metodoPagamento: string, total: n
 
     const dataFormatada = formatarData();
 
+    const emphasizedLabels = /^(Telefone|Entrega|Taxa de entrega|Endereço|Observação):\s*(.*)$/i;
     const obsFormatada = observacao
         .split("\n")
-        .map((palavra, index) => (
-            <p key={index}><strong>Obs.:</strong> {palavra} <br /></p>
-        ));
+        .map((line, index) => {
+            const match = line.trim().match(emphasizedLabels);
+            if (!match) return <p key={index}>{line}</p>;
+            return <p key={index}><strong>{match[1]}:</strong> {match[2]}</p>;
+        });
 
     return (
-        <div key={1} style={{ padding: "-8px", margin: "-8px" }}>
-            <span>=========================================================</span>
+        <div key={1} className="thermal-ticket">
+            <div className="ticket-separator" />
             <h1 style={{ fontSize: "25px", textAlign: "center" }}>Cléo Nogueira Lanches</h1>
-            <span>=========================================================</span>
-            <div style={{ padding: "0 8px" }}>
+            <div className="ticket-separator" />
+            <div>
                 <p><strong>PEDIDO: N° {orderNumber}</strong></p>
                 <p>Período: {periodo}</p>
                 <p>{dataFormatada}</p>
                 <p>Cliente: {nome}</p>
             </div>
-            <span>=========================================================</span>
-            <div style={{ display: "flex", justifyContent: "space-between", padding: "0 8px" }}>
+            <div className="ticket-separator" />
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <p>QTDE.</p>
                 <p>PRATO</p>
                 <p>PREÇO</p>
             </div>
-            <span>=========================================================</span>
+            <div className="ticket-separator" />
             {items.map(item =>
-                <div key={item.id} style={{ display: "flex", justifyContent: "space-between", padding: "0 8px" }}>
-                    <p style={{ padding: "0 10px" }}>{item.quantidade}</p>
-                    <p style={{ padding: "0 10px" }}>{item.nome}</p>
-                    <p>R$ {item.preco.toFixed(2)}</p>
+                <div key={item.id} style={{ display: "grid", gridTemplateColumns: "12mm 1fr 22mm", gap: "2mm", alignItems: "start" }}>
+                    <p style={{ textAlign: "center" }}>{item.quantidade}</p>
+                    <p style={{ overflowWrap: "anywhere" }}>{item.nome}</p>
+                    <p style={{ textAlign: "right", whiteSpace: "nowrap" }}>R$ {item.preco.toFixed(2)}</p>
                 </div>
             )}
-            <span>=========================================================</span>
-            <div style={{ padding: "0 8px" }}>
+            <div className="ticket-separator" />
+            <div>
                 <p style={{ textAlign: "right" }}>TOTAL: R$ {total.toFixed(2)}</p>
                 <p><strong>Método de Pagamento:</strong> {metodoPagamento}</p>
             </div>
-            <span>=========================================================</span>
-            <div style={{ padding: "0 8px" }}>
+            <div className="ticket-separator" />
+            <div>
                 <p>Atendente: Taia</p>
                 {obsFormatada} 
             </div>
             <div style={{ textAlign: "center" }}>
-                <span>................................................................</span>
-                <span>................................................................</span>
+                <div className="ticket-separator" />
                 <p>OBRIGADO, VOLTE SEMPRE! :)</p>
             </div>
         </div>

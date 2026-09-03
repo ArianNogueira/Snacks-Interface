@@ -12,7 +12,6 @@ import { toast } from 'react-toastify';
 
 import React from 'react';
 import { EditModal } from './editModal';
-import { OrderHistory } from './OrderHistory';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { CircleCheck, CircleX, LoaderCircle, Star } from 'lucide-react';
@@ -40,7 +39,6 @@ export function Section() {
     const { role, loading: authLoading } = useAuth();
     const isAdmin = !authLoading && role === "administrador";
     const canManageMenu = !authLoading && (role === "administrador" || role === "funcionario");
-    const canManageOrders = !authLoading && (role === "administrador" || role === "funcionario");
 
     useEffect(() => {
         dispatch(buscarDishes());
@@ -91,7 +89,6 @@ export function Section() {
     return (
         <section className="min-w-0">
             <div className='flex flex-wrap justify-end gap-3'>
-                {canManageOrders && <OrderHistory />}
                 {canManageMenu && <button
                     className='rounded-full bg-[#926e56] px-6 py-3 text-base text-white shadow-sm duration-300 hover:bg-[#765540] focus-visible:ring-2 focus-visible:ring-[#926e56] focus-visible:ring-offset-2 sm:text-lg'
                     onClick={handleOpenModal}
