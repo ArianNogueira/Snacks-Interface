@@ -1,7 +1,7 @@
 'use client'
 import Image from 'next/image';
 import Link from 'next/link';
-import { BarChart3, BellRing, ClipboardList, LoaderCircle, LogIn, LogOut, MessageSquareText, UserPlus } from 'lucide-react';
+import { BarChart3, BellRing, ClipboardList, LoaderCircle, LogOut, MessageSquareText, UserPlus } from 'lucide-react';
 import logo from '../../public/assets/Logo.png';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -48,7 +48,11 @@ export function Header() {
                     ) : user ? (
                         <button type="button" onClick={() => void signOut()} className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-black/40 px-4 py-2 text-sm font-semibold text-white backdrop-blur transition hover:bg-black/60" title={`Conectado como ${profile?.nome || user.email} (${role ?? "sem perfil"})`}><LogOut size={18} /><span className="hidden sm:inline">Sair</span></button>
                     ) : (
-                        <Link href="/login" className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-black/40 px-4 py-2 text-sm font-semibold text-white backdrop-blur transition hover:bg-black/60"><LogIn size={18} /><span className="hidden sm:inline">Entrar</span></Link>
+                        <>
+                            {/* Botão de login oculto temporariamente da tela principal.
+                            <Link href="/login" className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-black/40 px-4 py-2 text-sm font-semibold text-white backdrop-blur transition hover:bg-black/60"><LogIn size={18} /><span className="hidden sm:inline">Entrar</span></Link>
+                            */}
+                        </>
                     )}
                 </div>
                 <div className="flex h-full w-full flex-col items-center justify-center bg-black/35 px-4 text-center">

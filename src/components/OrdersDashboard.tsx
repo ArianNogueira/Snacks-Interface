@@ -2,7 +2,7 @@
 
 import OrdersService, { Order, OrderStatus } from "@/services/orders";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, CalendarClock, Download, LoaderCircle, Printer, RefreshCw } from "lucide-react";
+import { ArrowLeft, CalendarClock, Download, LoaderCircle, Printer, RefreshCw, Search } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "react-toastify";
@@ -30,6 +30,15 @@ const statusColors: Record<OrderStatus, string> = {
 
 function getStatusLabel(status: OrderStatus) {
   return statusOptions.find((option) => option.value === status)?.label ?? "Recebido";
+}
+
+function normalizeSearchText(value: string) {
+  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("pt-BR");
+}
+
+function getOrderPhone(order: Order) {
+  const phoneLine = order.observacao?.match(/(?:^|\n)Telefone:\s*([^\n]+)/i)?.[1] ?? "";
+  return phoneLine.replace(/\D/g, "");
 }
 
 const dateFormatter = new Intl.DateTimeFormat("pt-BR", { dateStyle: "short" });
@@ -71,6 +80,8 @@ export function OrdersDashboard() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | number | null>(null);
+  const [nameFilter, setNameFilter] = useState("");
+  const [phoneFilter, setPhoneFilter] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -122,11 +133,23 @@ export function OrdersDashboard() {
     printTicket(html);
   }
 
+  const normalizedNameFilter = normalizeSearchText(nameFilter.trim());
+  const normalizedPhoneFilter = phoneFilter.replace(/\D/g, "");
+  const filteredOrders = orders.filter((order) => {
+    const matchesName = !normalizedNameFilter || normalizeSearchText(order.nomeCliente).includes(normalizedNameFilter);
+    const matchesPhone = !normalizedPhoneFilter || getOrderPhone(order).includes(normalizedPhoneFilter);
+    return matchesName && matchesPhone;
+  });
+
   return <main className="min-h-screen bg-[#E4EDE3]">
-    <header className="bg-[#382110] text-white"><div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-5 sm:px-6"><div className="flex min-w-0 items-center gap-3"><Link href="/" aria-label="Voltar" className="shrink-0 rounded-full p-2 hover:bg-white/10"><ArrowLeft /></Link><div><p className="text-xs uppercase tracking-wider text-[#d8c3b3]">Atendimento</p><h1 className="text-xl font-bold sm:text-2xl">Pedidos dos clientes</h1></div></div><div className="ml-auto flex items-center gap-2"><button type="button" disabled={!orders.length} onClick={() => exportOrders(orders)} className="inline-flex items-center gap-2 rounded-full bg-emerald-700 px-3 py-2 text-sm font-semibold hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4"><Download size={18} /><span className="hidden sm:inline">Exportar CSV</span><span className="sm:hidden">CSV</span></button><button type="button" aria-label="Atualizar pedidos" onClick={() => void load()} className="rounded-full p-2 hover:bg-white/10"><RefreshCw className={loading ? "animate-spin" : ""} /></button></div></div></header>
+    <header className="bg-[#382110] text-white"><div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-5 sm:px-6"><div className="flex min-w-0 items-center gap-3"><Link href="/" aria-label="Voltar" className="shrink-0 rounded-full p-2 hover:bg-white/10"><ArrowLeft /></Link><div><p className="text-xs uppercase tracking-wider text-[#d8c3b3]">Atendimento</p><h1 className="text-xl font-bold sm:text-2xl">Pedidos dos clientes</h1></div></div><div className="ml-auto flex items-center gap-2"><button type="button" disabled={!filteredOrders.length} onClick={() => exportOrders(filteredOrders)} className="inline-flex items-center gap-2 rounded-full bg-emerald-700 px-3 py-2 text-sm font-semibold hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4"><Download size={18} /><span className="hidden sm:inline">Exportar CSV</span><span className="sm:hidden">CSV</span></button><button type="button" aria-label="Atualizar pedidos" onClick={() => void load()} className="rounded-full p-2 hover:bg-white/10"><RefreshCw className={loading ? "animate-spin" : ""} /></button></div></div></header>
     <section className="mx-auto max-w-7xl p-3 sm:p-5">
-      {loading && !orders.length ? <div className="flex justify-center py-20"><LoaderCircle className="animate-spin" /></div> : !orders.length ? <p className="rounded-xl bg-white p-8 text-center">Nenhum pedido encontrado.</p> : <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-        {orders.map((order) => {
+      <div className="mb-4 grid gap-3 rounded-xl bg-white p-3 shadow-sm sm:grid-cols-2 sm:p-4">
+        <label className="relative"><span className="sr-only">Pesquisar por nome</span><Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={18} /><input type="search" value={nameFilter} onChange={(event) => setNameFilter(event.target.value)} placeholder="Pesquisar por nome" className="w-full rounded-lg border border-zinc-300 py-2.5 pl-10 pr-3 outline-none focus:border-[#926e56] focus:ring-2 focus:ring-[#926e56]/20" /></label>
+        <label className="relative"><span className="sr-only">Pesquisar por telefone</span><Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={18} /><input type="search" inputMode="tel" value={phoneFilter} onChange={(event) => setPhoneFilter(event.target.value)} placeholder="Pesquisar por telefone" className="w-full rounded-lg border border-zinc-300 py-2.5 pl-10 pr-3 outline-none focus:border-[#926e56] focus:ring-2 focus:ring-[#926e56]/20" /></label>
+      </div>
+      {loading && !orders.length ? <div className="flex justify-center py-20"><LoaderCircle className="animate-spin" /></div> : !orders.length ? <p className="rounded-xl bg-white p-8 text-center">Nenhum pedido encontrado.</p> : !filteredOrders.length ? <p className="rounded-xl bg-white p-8 text-center">Nenhum pedido corresponde aos filtros informados.</p> : <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        {filteredOrders.map((order) => {
           const currentStatus = order.status ?? "recebido";
           const statusLabel = getStatusLabel(currentStatus);
           return <article key={order.id} className="rounded-xl bg-white p-3 shadow-sm sm:p-4">

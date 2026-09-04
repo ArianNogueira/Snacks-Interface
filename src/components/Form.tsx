@@ -1,4 +1,4 @@
-import { Banknote, CreditCard, QrCode } from 'lucide-react';
+import { Banknote, CreditCard } from 'lucide-react';
 
 interface FormProps {
     metodoPagamento: string;
@@ -17,18 +17,6 @@ export function Form({ metodoPagamento, setMetodoPagamento }: FormProps) {
                     name="payment"
                     value="Dinheiro"
                     checked={metodoPagamento === 'Dinheiro'}
-                    onChange={(e) => setMetodoPagamento(e.target.value)}
-                />
-            </label>
-            <label className="flex justify-between cursor-pointer">
-                <QrCode />
-                <p>Pix </p>
-                <input
-                required
-                    type="radio"
-                    name="payment"
-                    value="Pix"
-                    checked={metodoPagamento === 'Pix'}
                     onChange={(e) => setMetodoPagamento(e.target.value)}
                 />
             </label>

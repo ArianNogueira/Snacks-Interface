@@ -13,6 +13,38 @@ import OrdersService, { DeliveryType, getOrderPeriod } from "@/services/orders";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 
+const CUSTOMER_STORAGE_KEY = "snacksCustomers";
+
+function normalizePhone(value: string) {
+  return value.replace(/\D/g, "");
+}
+
+function getRememberedCustomers(): Record<string, string> {
+  try {
+    const stored = localStorage.getItem(CUSTOMER_STORAGE_KEY);
+    return stored ? JSON.parse(stored) as Record<string, string> : {};
+  } catch {
+    return {};
+  }
+}
+
+function rememberCustomer(phone: string, name: string) {
+  const normalizedPhone = normalizePhone(phone);
+  const normalizedName = name.trim();
+  if (normalizedPhone.length < 10 || !normalizedName) return;
+
+  localStorage.setItem(CUSTOMER_STORAGE_KEY, JSON.stringify({
+    ...getRememberedCustomers(),
+    [normalizedPhone]: normalizedName,
+  }));
+}
+
+function findRememberedCustomer(phone: string) {
+  const normalizedPhone = normalizePhone(phone);
+  if (normalizedPhone.length < 10) return "";
+  return getRememberedCustomers()[normalizedPhone] ?? "";
+}
+
 export function printTicket(html: string) {
   const iframe = document.createElement("iframe");
   iframe.setAttribute("aria-hidden", "true");
@@ -89,6 +121,12 @@ export function Aside() {
     if (digits.length === 8) void searchAddressByCep(digits);
   }
 
+  function handlePhoneChange(value: string) {
+    setTelefone(value);
+    const rememberedName = findRememberedCustomer(value);
+    if (rememberedName) setNomeCliente(rememberedName);
+  }
+
   async function handleSubmit() {
     if (!nomeCliente.trim()) return toast.error("Informe o nome do cliente!");
     if (!metodoPagamento) return toast.error("Informe o método de pagamento!");
@@ -111,6 +149,7 @@ export function Aside() {
         const html = ReactDOMServer.renderToStaticMarkup(BrintableTicket(items, metodoPagamento, total, nomeCliente, detalhes, saved.numeroPedido!, periodo, createdAt));
         printTicket(html);
       }
+      if (!isStaff) rememberCustomer(telefone, nomeCliente);
       dispatch(resetarCart());
       setMobileOpen(false);
       setMetodoPagamento(""); setObservacao(""); setTelefone(""); setCep(""); setBairro(""); setLogradouro(""); setResidencia(""); setComplemento(""); setCidade(""); setUf(""); setDeliveryType("retirada");
@@ -125,7 +164,7 @@ export function Aside() {
   const cartContent = !items.length ? <p className="py-6 text-center">Seu carrinho está vazio</p> : <div>
       <h2 className="mb-4 font-bold text-[#382110]">Seu pedido</h2>
       <input className="mb-3 w-full rounded-md p-2 placeholder:text-zinc-500" required placeholder="Nome do cliente" value={nomeCliente} onChange={(e) => setNomeCliente(e.target.value)} />
-      {!isStaff && <input className="mb-5 w-full rounded-md p-2 placeholder:text-zinc-500" required type="tel" placeholder="Telefone/WhatsApp" value={telefone} onChange={(e) => setTelefone(e.target.value)} />}
+      {!isStaff && <input className="mb-5 w-full rounded-md p-2 placeholder:text-zinc-500" required type="tel" inputMode="tel" autoComplete="tel" placeholder="Telefone/WhatsApp" value={telefone} onChange={(e) => handlePhoneChange(e.target.value)} />}
       {!isStaff && <div className="mb-4"><p className="mb-2 text-sm font-semibold text-[#382110]">Como deseja receber?</p><div className="grid grid-cols-2 gap-2"><button type="button" onClick={() => { setDeliveryType("retirada"); }} className={`flex items-center justify-center gap-2 rounded-lg border p-2 text-sm font-semibold ${deliveryType === "retirada" ? "border-[#382110] bg-[#382110] text-white" : "border-zinc-300 bg-white"}`}><ShoppingBag size={17} />Retirada</button><button type="button" onClick={() => setDeliveryType("delivery")} className={`flex items-center justify-center gap-2 rounded-lg border p-2 text-sm font-semibold ${deliveryType === "delivery" ? "border-[#382110] bg-[#382110] text-white" : "border-zinc-300 bg-white"}`}><Truck size={17} />Delivery</button></div></div>}
       {!isStaff && deliveryType === "delivery" && <div className="mb-5 space-y-2"><div className="relative"><input className="w-full rounded-md p-2 pr-10 placeholder:text-zinc-500" inputMode="numeric" autoComplete="postal-code" placeholder="CEP" value={cep} onChange={(e) => handleCepChange(e.target.value)} onBlur={() => { if (cep.replace(/\D/g, "").length === 8 && !logradouro) void searchAddressByCep(cep); }} />{searchingCep && <LoaderCircle className="absolute right-3 top-2.5 animate-spin text-zinc-500" size={18} />}</div><input className="w-full rounded-md p-2 placeholder:text-zinc-500" placeholder="Bairro" value={bairro} onChange={(e) => setBairro(e.target.value)} /><input className="w-full rounded-md p-2 placeholder:text-zinc-500" placeholder="Endereço (rua/avenida)" value={logradouro} onChange={(e) => setLogradouro(e.target.value)} /><input className="w-full rounded-md p-2 placeholder:text-zinc-500" placeholder="Casa/apartamento e número" value={residencia} onChange={(e) => setResidencia(e.target.value)} /><input className="w-full rounded-md p-2 placeholder:text-zinc-500" placeholder="Complemento ou referência (opcional)" value={complemento} onChange={(e) => setComplemento(e.target.value)} /><p className="rounded-md bg-emerald-50 p-2 text-sm font-semibold text-emerald-800">Taxa fixa de entrega: R$ 10,00</p></div>}
       <ul>{items.map((item) => <li key={item.id} className="mt-2 list-none">
