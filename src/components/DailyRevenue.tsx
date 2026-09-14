@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Banknote, CalendarDays, ChevronLeft, ChevronRight, Clock3, CreditCard, PackageOpen, ReceiptText, RefreshCw, ShoppingBag, TrendingUp, Trophy, WalletCards } from "lucide-react";
+import { PIX_METHOD } from "@/lib/pix";
 import OrdersService, { getLocalDateKey, Order } from "@/services/orders";
 
 const money = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
@@ -26,7 +27,7 @@ export function DailyRevenue() {
   }, []);
   useEffect(() => { void loadOrders(); }, [loadOrders]);
 
-  const dailyOrders = useMemo(() => orders.filter((order) => getLocalDateKey(new Date(order.created_at)) === selectedDate), [orders, selectedDate]);
+  const dailyOrders = useMemo(() => orders.filter((order) => (order.metodoPagamento !== PIX_METHOD || order.paymentStatus === "paid") && getLocalDateKey(new Date(order.metodoPagamento === PIX_METHOD ? order.paidAt ?? order.created_at : order.created_at)) === selectedDate), [orders, selectedDate]);
   const stats = useMemo(() => {
     const revenue = dailyOrders.reduce((sum, order) => sum + order.total, 0);
     const itemCount = dailyOrders.reduce((sum, order) => sum + order.items.reduce((n, item) => n + item.quantidade, 0), 0);

@@ -65,11 +65,11 @@ export function printTicket(html: string) {
 export function Aside() {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
-  const { role, profile } = useAuth();
+  const { role } = useAuth();
   const isStaff = role === "administrador" || role === "funcionario";
   const { items = [] } = useSelector((state: RootState) => state.cart);
   const [metodoPagamento, setMetodoPagamento] = useState("");
-  const [nomeCliente, setNomeCliente] = useState(profile?.nome ?? "");
+  const [nomeCliente, setNomeCliente] = useState("");
   const [telefone, setTelefone] = useState("");
   const [cep, setCep] = useState("");
   const [bairro, setBairro] = useState("");
@@ -83,13 +83,17 @@ export function Aside() {
   const [observacao, setObservacao] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [pixEnabled, setPixEnabled] = useState(false);
+  useEffect(() => {
+    void fetch("/api/pix/config", { cache: "no-store" }).then((response) => response.json())
+      .then((data) => setPixEnabled(data.enabled === true)).catch(() => setPixEnabled(false));
+  }, []);
   const subtotal = items.reduce((acc, item) => acc + item.preco, 0);
   const deliveryFee = deliveryType === "delivery" ? 10 : 0;
   const total = subtotal + deliveryFee;
   const totalItems = items.reduce((acc, item) => acc + item.quantidade, 0);
   const enderecoEntrega = [logradouro, residencia && `Nº/Casa/Apto: ${residencia}`, bairro && `Bairro: ${bairro}`, complemento && `Complemento: ${complemento}`, cidade && `${cidade}${uf ? ` - ${uf}` : ""}`, cep && `CEP: ${cep}`].filter(Boolean).join(", ");
 
-  useEffect(() => { if (profile?.nome && !nomeCliente) setNomeCliente(profile.nome); }, [nomeCliente, profile?.nome]);
   useEffect(() => {
     if (items.length) localStorage.setItem("dishCart", JSON.stringify(items));
     else localStorage.removeItem("dishCart");
@@ -174,7 +178,7 @@ export function Aside() {
       </li>)}</ul>
       <div className="mt-8 space-y-1 text-sm"><div className="flex justify-between"><span>Subtotal:</span><span>R$ {subtotal.toFixed(2)}</span></div>{deliveryType === "delivery" && <div className="flex justify-between"><span>Taxa de entrega:</span><span>R$ {deliveryFee.toFixed(2)}</span></div>}<div className="flex justify-between border-t pt-2 text-base"><strong>TOTAL:</strong><strong>R$ {total.toFixed(2)}</strong></div></div>
       <h3 className="mb-2 mt-5 text-xl font-bold text-[#382110]">Pagamento</h3>
-      <Form metodoPagamento={metodoPagamento} setMetodoPagamento={setMetodoPagamento} />
+      <Form pixEnabled={pixEnabled && !isStaff} metodoPagamento={metodoPagamento} setMetodoPagamento={setMetodoPagamento} />
       <textarea className="my-5 w-full rounded-md p-3 placeholder:text-zinc-500" rows={4} placeholder="Observações do pedido" value={observacao} onChange={(e) => setObservacao(e.target.value)} />
       <button type="button" disabled={enviando} onClick={() => void handleSubmit()} className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#382110] px-5 py-3 font-bold text-white hover:bg-[#5a3822] disabled:cursor-wait disabled:opacity-60">{isStaff ? <Printer size={20} /> : <Send size={20} />}{enviando ? "Enviando..." : isStaff ? "Salvar e imprimir" : "Enviar pedido"}</button>
     </div>;

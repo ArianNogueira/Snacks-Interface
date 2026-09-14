@@ -7,6 +7,9 @@ import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import type { LucideIcon } from "lucide-react";
 
+import { PixCheckout } from "@/components/PixCheckout";
+import { PIX_METHOD } from "@/lib/pix";
+
 type TrackingStepStatus = Exclude<OrderStatus, "cancelado">;
 
 const steps: Array<{ status: TrackingStepStatus; label: string }> = [
@@ -35,6 +38,7 @@ export default function TrackOrderPage() {
       <h1 className="mt-1 text-2xl font-bold text-[#382110]">Acompanhe seu pedido</h1>
       {loading ? <div className="flex justify-center py-16"><LoaderCircle className="animate-spin" /></div> : error ? <p className="my-8 rounded-lg bg-red-50 p-4 text-red-700">{error}</p> : !order ? <p className="my-8">Pedido não encontrado ou link inválido.</p> : <>
         <div className="mt-6 flex items-center justify-between rounded-xl bg-[#f5f5f5] p-4"><div><p className="text-sm text-zinc-500">Pedido</p><p className="text-2xl font-bold">Nº {order.numeroPedido}</p></div><div className="text-right"><p className="text-sm text-zinc-500">Total</p><p className="font-bold">R$ {order.total.toFixed(2)}</p></div></div>
+        {order.metodoPagamento === PIX_METHOD && <PixCheckout token={token} canceled={order.status === "cancelado"} />}
         {order.status === "cancelado" ? <div className="mt-6 flex gap-3 rounded-xl bg-red-50 p-4 text-red-800"><XCircle /><div><strong>Pedido cancelado</strong><p className="text-sm">Entre em contato com a lanchonete caso tenha dúvidas.</p></div></div> : <ol className="mt-8 space-y-2">
           {steps.map((step, index) => { const Icon = icons[step.status]; const done = index <= currentIndex; return <li key={step.status} className={`flex items-center gap-4 rounded-xl p-3 ${done ? "bg-emerald-50 text-emerald-800" : "text-zinc-400"}`}><span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${done ? "bg-emerald-600 text-white" : "bg-zinc-100"}`}>{index < currentIndex ? <Check size={20} /> : <Icon size={20} />}</span><strong>{step.label}</strong></li>; })}
         </ol>}

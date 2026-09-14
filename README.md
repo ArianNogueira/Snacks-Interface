@@ -7,6 +7,10 @@ Antes de publicar o fluxo de pedidos online, aplique no projeto Supabase a migra
 site para recalcular preços, salvar pedido e itens na mesma transação e avisar a
 equipe em tempo real.
 
+## Pix PagBank
+
+A integração está desativada por padrão. Consulte [configuração, migração e testes](docs/PAGBANK_PIX.md) antes de habilitar no ambiente de testes ou na Vercel.
+
 ## Getting Started
 
 First, run the development server:

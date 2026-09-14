@@ -1,11 +1,12 @@
 import { Banknote, CreditCard } from 'lucide-react';
 
 interface FormProps {
+    pixEnabled?: boolean;
     metodoPagamento: string;
     setMetodoPagamento: (metodo: string) => void;
 }
 
-export function Form({ metodoPagamento, setMetodoPagamento }: FormProps) {
+export function Form({ metodoPagamento, setMetodoPagamento, pixEnabled = false }: FormProps) {
     return (
         <form className="flex flex-col gap-y-2">
             <label className="flex justify-between cursor-pointer">
@@ -44,6 +45,7 @@ export function Form({ metodoPagamento, setMetodoPagamento }: FormProps) {
                     onChange={(e) => setMetodoPagamento(e.target.value)}
                 />
             </label>
+            {pixEnabled && <label className="flex justify-between cursor-pointer"><Banknote /><p>Pix</p><input type="radio" name="payment" value="Pix PagBank" checked={metodoPagamento === "Pix PagBank"} onChange={(e) => setMetodoPagamento(e.target.value)} /></label>}
         </form>
     )
 }

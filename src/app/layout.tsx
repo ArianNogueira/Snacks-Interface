@@ -12,6 +12,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-br">
+      <head>
+        <link rel="icon" type="image/png" href="/assets/Logo%20Favicon.ico" />
+      </head>
       <body>
         <Provider store={store}>
           <AuthProvider>

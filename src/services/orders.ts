@@ -12,7 +12,11 @@ export type OrderPeriod = "09:00-14:59" | "18:00-23:59";
 export type OrderStatus = "recebido" | "confirmado" | "preparando" | "saiu_entrega" | "entregue" | "cancelado";
 export type DeliveryType = "retirada" | "delivery";
 
+import type { PixStatus } from "@/lib/pix";
+
 export interface Order {
+  paymentStatus?: PixStatus;
+  paidAt?: string;
   id?: number | string;
   nomeCliente: string;
   metodoPagamento: string;
@@ -40,6 +44,8 @@ interface OrderItemRow {
 }
 
 interface OrderRow {
+  payment_status?: PixStatus;
+  paid_at?: string;
   id: number;
   nome_cliente: string;
   metodo_pagamento: string;
@@ -76,6 +82,8 @@ export function getLocalDateKey(date: Date): string {
 function normalizeOrder(row: OrderRow): Order {
   return {
     id: row.id,
+    paymentStatus: row.payment_status,
+    paidAt: row.paid_at,
     nomeCliente: row.nome_cliente,
     metodoPagamento: row.metodo_pagamento,
     observacao: row.observacao ?? "",
