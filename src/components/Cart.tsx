@@ -138,7 +138,7 @@ export function Aside() {
     if (!isStaff && deliveryType === "delivery" && (cep.replace(/\D/g, "").length !== 8 || !bairro.trim() || !logradouro.trim() || !residencia.trim())) return toast.error("Preencha CEP, bairro, endereço e casa/apartamento.");
     const now = new Date();
     const periodo = getOrderPeriod(now);
-    if (!periodo) return toast.error("Pedidos disponíveis das 09h às 14h e das 18h às 22:30h.");
+    if (!periodo) return toast.error("Pedidos disponíveis das 09h às 14h e das 18h às 23h.");
     const createdAt = now.toISOString();
     const selectedDeliveryType: DeliveryType = isStaff ? "retirada" : deliveryType;
     const deliveryDetails = selectedDeliveryType === "delivery" ? [`Entrega: Delivery`, `Taxa de entrega: R$ ${deliveryFee.toFixed(2)}`, `Endereço: ${enderecoEntrega.trim()}`] : ["Entrega: Retirada no local"];

@@ -66,9 +66,8 @@ interface OrderRow {
 
 export function getOrderPeriod(date: Date): OrderPeriod | null {
   const hour = date.getHours();
-  const minute = date.getMinutes();
   if (hour >= 9 && hour < 15) return "09:00-14:59";
-  if (hour >= 18 && (hour < 22 || (hour === 22 && minute <= 30))) return "18:00-23:59";
+  if (hour >= 18 && hour < 23) return "18:00-23:59";
   return null;
 }
 

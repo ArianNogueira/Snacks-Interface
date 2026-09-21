@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Banknote, CalendarDays, ChevronLeft, ChevronRight, Clock3, CreditCard, PackageOpen, ReceiptText, RefreshCw, ShoppingBag, TrendingUp, Trophy, WalletCards } from "lucide-react";
+import { ArrowLeft, Banknote, CalendarDays, ChevronLeft, ChevronRight, CreditCard, PackageOpen, ReceiptText, RefreshCw, ShoppingBag, TrendingUp, Trophy, WalletCards } from "lucide-react";
 import { PIX_METHOD } from "@/lib/pix";
 import OrdersService, { getLocalDateKey, Order } from "@/services/orders";
 
@@ -32,9 +32,8 @@ export function DailyRevenue() {
     const revenue = dailyOrders.reduce((sum, order) => sum + order.total, 0);
     const itemCount = dailyOrders.reduce((sum, order) => sum + order.items.reduce((n, item) => n + item.quantidade, 0), 0);
     const payments = Object.entries(dailyOrders.reduce<Record<string, number>>((acc, order) => { const method = order.metodoPagamento || "Não informado"; acc[method] = (acc[method] ?? 0) + order.total; return acc; }, {})).sort((a, b) => b[1] - a[1]);
-    const periods = ["09:00-14:00", "18:00-23:00"].map((period) => { const list = dailyOrders.filter((order) => order.periodo === period); return { period, orders: list.length, total: list.reduce((sum, order) => sum + order.total, 0) }; });
     const products = Object.values(dailyOrders.flatMap((order) => order.items).reduce<Record<string, { name: string; quantity: number; total: number }>>((acc, item) => { const key = String(item.dishId || item.nome); acc[key] ??= { name: item.nome, quantity: 0, total: 0 }; acc[key].quantity += item.quantidade; acc[key].total += item.total; return acc; }, {})).sort((a, b) => b.quantity - a.quantity || b.total - a.total);
-    return { revenue, itemCount, average: dailyOrders.length ? revenue / dailyOrders.length : 0, payments, periods, products };
+    return { revenue, itemCount, average: dailyOrders.length ? revenue / dailyOrders.length : 0, payments, products };
   }, [dailyOrders]);
 
   const maxPayment = Math.max(...stats.payments.map(([, value]) => value), 1);
@@ -46,8 +45,7 @@ export function DailyRevenue() {
       <section className="mb-6 min-w-0 rounded-2xl bg-white p-4 shadow-sm sm:flex sm:items-center sm:justify-between sm:gap-4"><div className="min-w-0"><div className="flex items-center gap-2 text-[#5f7b5d]"><CalendarDays size={19} /><span className="text-sm font-semibold">Dia analisado</span></div><p className="mt-1 break-words capitalize text-lg font-bold text-[#382110]">{dateLabel(selectedDate)}</p></div><div className="mt-4 grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 sm:mt-0"><button aria-label="Dia anterior" onClick={() => setSelectedDate(moveDate(selectedDate, -1))} className="rounded-lg border p-2 hover:bg-zinc-50"><ChevronLeft /></button><input type="date" value={selectedDate} max={today} onChange={(e) => e.target.value && setSelectedDate(e.target.value)} className="w-full min-w-0 rounded-lg border border-zinc-300 px-2 py-2 sm:px-3" /><button aria-label="Próximo dia" disabled={selectedDate === today} onClick={() => setSelectedDate(moveDate(selectedDate, 1))} className="rounded-lg border p-2 hover:bg-zinc-50 disabled:opacity-35"><ChevronRight /></button></div></section>
       {error ? <Empty icon={PackageOpen} text={error} /> : loading ? <Empty icon={RefreshCw} text="Carregando estatísticas..." loading /> : <>
         <section className="grid min-w-0 gap-4 sm:grid-cols-2 xl:grid-cols-4"><StatCard title="Faturamento" value={money.format(stats.revenue)} detail="Total recebido no dia" icon={TrendingUp} /><StatCard title="Pedidos" value={String(dailyOrders.length)} detail="Vendas registradas" icon={ReceiptText} /><StatCard title="Ticket médio" value={money.format(stats.average)} detail="Média por pedido" icon={WalletCards} /><StatCard title="Itens vendidos" value={String(stats.itemCount)} detail="Unidades comercializadas" icon={ShoppingBag} /></section>
-        {!dailyOrders.length ? <Empty icon={PackageOpen} title="Nenhuma venda neste dia" text="Escolha outra data para consultar o faturamento." spaced /> : <div className="mt-6 grid min-w-0 items-start gap-6 lg:grid-cols-2">
-          <section className="min-w-0 rounded-2xl bg-white p-5 shadow-sm"><h2 className="flex items-center gap-2 text-lg font-bold text-[#382110]"><Clock3 className="shrink-0" size={20} /> Faturamento por período</h2><div className="mt-5 grid gap-3 sm:grid-cols-2">{stats.periods.map((row) => <article key={row.period} className="min-w-0 rounded-xl border p-4"><p className="text-sm text-zinc-500">{row.period}</p><p className="mt-1 break-words text-xl font-bold text-[#382110]">{money.format(row.total)}</p><p className="mt-2 text-xs text-zinc-500">{row.orders} pedido(s)</p></article>)}</div></section>
+        {!dailyOrders.length ? <Empty icon={PackageOpen} title="Nenhuma venda neste dia" text="Escolha outra data para consultar o faturamento." spaced /> : <div className="mt-6 grid min-w-0 items-start gap-6">
           <section className="min-w-0 rounded-2xl bg-white p-5 shadow-sm"><h2 className="flex items-center gap-2 text-lg font-bold text-[#382110]"><CreditCard className="shrink-0" size={20} /> Formas de pagamento</h2><div className="mt-5 space-y-4">{stats.payments.map(([method, value]) => <div className="min-w-0" key={method}><div className="mb-1 flex min-w-0 flex-wrap justify-between gap-x-3 text-sm"><span className="min-w-0 break-words">{method}</span><strong className="shrink-0">{money.format(value)}</strong></div><div className="h-2 overflow-hidden rounded-full bg-zinc-100"><div className="h-full rounded-full bg-[#5f7b5d]" style={{ width: `${value / maxPayment * 100}%` }} /></div></div>)}</div></section>
           <ProductsRanking products={stats.products} />
         </div>}
@@ -57,7 +55,7 @@ export function DailyRevenue() {
 }
 
 function ProductsRanking({ products }: { products: { name: string; quantity: number; total: number }[] }) {
-  return <section className="min-w-0 rounded-2xl bg-white p-4 shadow-sm sm:p-5 lg:col-span-2"><h2 className="flex items-center gap-2 text-lg font-bold text-[#382110]"><Trophy className="shrink-0" size={20} /> Produtos mais vendidos</h2>
+  return <section className="min-w-0 rounded-2xl bg-white p-4 shadow-sm sm:p-5"><h2 className="flex items-center gap-2 text-lg font-bold text-[#382110]"><Trophy className="shrink-0" size={20} /> Produtos mais vendidos</h2>
     <div className="mt-4 space-y-3 sm:hidden">{products.map((product, index) => <article key={product.name} className="min-w-0 rounded-xl border p-4"><div className="flex min-w-0 items-start gap-3"><span className="shrink-0 font-bold text-[#926e56]">#{index + 1}</span><div className="min-w-0 flex-1"><p className="break-words font-semibold text-[#382110]">{product.name}</p><div className="mt-2 flex flex-wrap justify-between gap-x-3 gap-y-1 text-sm text-zinc-600"><span>{product.quantity} unidade(s)</span><strong className="text-zinc-800">{money.format(product.total)}</strong></div></div></div></article>)}</div>
     <div className="mt-4 hidden max-w-full overflow-x-auto sm:block"><table className="w-full min-w-[520px] text-left text-sm"><thead className="border-b text-xs uppercase text-zinc-500"><tr><th className="py-3">Posição</th><th>Produto</th><th className="text-center">Quantidade</th><th className="text-right">Faturamento</th></tr></thead><tbody>{products.map((product, index) => <tr key={product.name} className="border-b last:border-0"><td className="py-3 font-bold text-[#926e56]">#{index + 1}</td><td>{product.name}</td><td className="text-center">{product.quantity}</td><td className="text-right font-semibold">{money.format(product.total)}</td></tr>)}</tbody></table></div>
   </section>;

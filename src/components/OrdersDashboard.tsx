@@ -1,7 +1,7 @@
 "use client";
 
 import { PIX_METHOD, pixLabels } from "@/lib/pix";
-import OrdersService, { Order, OrderStatus } from "@/services/orders";
+import OrdersService, { getLocalDateKey, Order, OrderStatus } from "@/services/orders";
 import { supabase } from "@/lib/supabase";
 import { ArrowLeft, CalendarClock, Download, LoaderCircle, Printer, RefreshCw, Search } from "lucide-react";
 import Link from "next/link";
@@ -49,7 +49,7 @@ function escapeCsv(value: unknown) {
   return `"${String(value ?? "").replaceAll('"', '""')}"`;
 }
 
-function exportOrders(orders: Order[]) {
+function exportOrders(orders: Order[], selectedDate: string) {
   const header = ["Data e hora", "Período", "Número do pedido", "Status", "Modalidade", "Taxa de entrega", "Cliente", "Pagamento", "Endereço de entrega", "Item", "Quantidade", "Preço unitário", "Total do item", "Total do pedido", "Observação"];
   const rows = orders.flatMap((order) => order.items.map((item) => [
     new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" }).format(new Date(order.created_at)),
@@ -72,7 +72,7 @@ function exportOrders(orders: Order[]) {
   const url = URL.createObjectURL(new Blob(["\uFEFF", csv], { type: "text/csv;charset=utf-8" }));
   const link = document.createElement("a");
   link.href = url;
-  link.download = `pedidos-${new Date().toISOString().slice(0, 10)}.csv`;
+  link.download = `pedidos-${selectedDate}.csv`;
   link.click();
   URL.revokeObjectURL(url);
 }
@@ -83,6 +83,7 @@ export function OrdersDashboard() {
   const [updating, setUpdating] = useState<string | number | null>(null);
   const [nameFilter, setNameFilter] = useState("");
   const [phoneFilter, setPhoneFilter] = useState("");
+  const [selectedDate, setSelectedDate] = useState(() => getLocalDateKey(new Date()));
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -137,15 +138,20 @@ export function OrdersDashboard() {
   const normalizedNameFilter = normalizeSearchText(nameFilter.trim());
   const normalizedPhoneFilter = phoneFilter.replace(/\D/g, "");
   const filteredOrders = orders.filter((order) => {
+    const matchesDate = getLocalDateKey(new Date(order.created_at)) === selectedDate;
     const matchesName = !normalizedNameFilter || normalizeSearchText(order.nomeCliente).includes(normalizedNameFilter);
     const matchesPhone = !normalizedPhoneFilter || getOrderPhone(order).includes(normalizedPhoneFilter);
-    return matchesName && matchesPhone;
+    return matchesDate && matchesName && matchesPhone;
   });
 
   return <main className="min-h-screen bg-[#E4EDE3]">
-    <header className="bg-[#382110] text-white"><div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-5 sm:px-6"><div className="flex min-w-0 items-center gap-3"><Link href="/" aria-label="Voltar" className="shrink-0 rounded-full p-2 hover:bg-white/10"><ArrowLeft /></Link><div><p className="text-xs uppercase tracking-wider text-[#d8c3b3]">Atendimento</p><h1 className="text-xl font-bold sm:text-2xl">Pedidos dos clientes</h1></div></div><div className="ml-auto flex items-center gap-2"><button type="button" disabled={!filteredOrders.length} onClick={() => exportOrders(filteredOrders)} className="inline-flex items-center gap-2 rounded-full bg-emerald-700 px-3 py-2 text-sm font-semibold hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4"><Download size={18} /><span className="hidden sm:inline">Exportar CSV</span><span className="sm:hidden">CSV</span></button><button type="button" aria-label="Atualizar pedidos" onClick={() => void load()} className="rounded-full p-2 hover:bg-white/10"><RefreshCw className={loading ? "animate-spin" : ""} /></button></div></div></header>
+    <header className="bg-[#382110] text-white"><div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-5 sm:px-6"><div className="flex min-w-0 items-center gap-3"><Link href="/" aria-label="Voltar" className="shrink-0 rounded-full p-2 hover:bg-white/10"><ArrowLeft /></Link><div><p className="text-xs uppercase tracking-wider text-[#d8c3b3]">Atendimento</p><h1 className="text-xl font-bold sm:text-2xl">Pedidos dos clientes</h1></div></div><div className="ml-auto flex items-center gap-2"><button type="button" disabled={!filteredOrders.length} onClick={() => exportOrders(filteredOrders, selectedDate)} className="inline-flex items-center gap-2 rounded-full bg-emerald-700 px-3 py-2 text-sm font-semibold hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4"><Download size={18} /><span className="hidden sm:inline">Exportar CSV</span><span className="sm:hidden">CSV</span></button><button type="button" aria-label="Atualizar pedidos" onClick={() => void load()} className="rounded-full p-2 hover:bg-white/10"><RefreshCw className={loading ? "animate-spin" : ""} /></button></div></div></header>
     <section className="mx-auto max-w-7xl p-3 sm:p-5">
-      <div className="mb-4 grid gap-3 rounded-xl bg-white p-3 shadow-sm sm:grid-cols-2 sm:p-4">
+      <div className="mb-4 grid gap-3 rounded-xl bg-white p-3 shadow-sm sm:grid-cols-2 sm:items-end sm:p-4 lg:grid-cols-3">
+        <div className="flex min-w-0 items-end gap-2">
+          <label className="min-w-0 flex-1"><span className="mb-1 block text-sm font-semibold text-[#382110]">Data dos pedidos</span><input type="date" value={selectedDate} onChange={(event) => setSelectedDate(event.target.value || getLocalDateKey(new Date()))} className="w-full min-w-0 rounded-lg border border-zinc-300 px-3 py-2.5 outline-none focus:border-[#926e56] focus:ring-2 focus:ring-[#926e56]/20" /></label>
+          <button type="button" onClick={() => setSelectedDate(getLocalDateKey(new Date()))} className="rounded-lg border border-zinc-300 px-3 py-2.5 text-sm font-semibold text-[#382110] hover:bg-zinc-50">Hoje</button>
+        </div>
         <label className="relative"><span className="sr-only">Pesquisar por nome</span><Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={18} /><input type="search" value={nameFilter} onChange={(event) => setNameFilter(event.target.value)} placeholder="Pesquisar por nome" className="w-full rounded-lg border border-zinc-300 py-2.5 pl-10 pr-3 outline-none focus:border-[#926e56] focus:ring-2 focus:ring-[#926e56]/20" /></label>
         <label className="relative"><span className="sr-only">Pesquisar por telefone</span><Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={18} /><input type="search" inputMode="tel" value={phoneFilter} onChange={(event) => setPhoneFilter(event.target.value)} placeholder="Pesquisar por telefone" className="w-full rounded-lg border border-zinc-300 py-2.5 pl-10 pr-3 outline-none focus:border-[#926e56] focus:ring-2 focus:ring-[#926e56]/20" /></label>
       </div>
